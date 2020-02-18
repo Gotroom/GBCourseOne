@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Floor
+  - Enemy
+  - OpenTrigger
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - Platform
+  - Player
+  - Consumable
+  - Interactable
+  - Enemy
+  - PlayerDrop
+  - Projectile
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Background2
+    uniqueID: 3971849763
+    locked: 0
+  - name: Background
+    uniqueID: 2973302985
+    locked: 0
+  - name: Lair Background
+    uniqueID: 4081107891
+    locked: 0
+  - name: Level
+    uniqueID: 857526399
+    locked: 0
+  - name: Lair Level
+    uniqueID: 428405975
+    locked: 0
+  - name: Foreground
+    uniqueID: 3482978137
+    locked: 0
+  - name: Lair Foreground
+    uniqueID: 3913126711
+    locked: 0
