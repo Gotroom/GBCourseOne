@@ -35,6 +35,7 @@ public class EnemyController : BaseCharacterController
 
     void Update()
     {
+        print(_playerSpotted);
         if (CheckForPlayer() && !_playerSpotted)
         {
             _playerSpotted = true;
@@ -56,8 +57,9 @@ public class EnemyController : BaseCharacterController
     {
         if (!_inAttackRange)
         {
+            var speed = _speed * (_stayingStill ? 0.0f : 1.0f);
             transform.position += Vector3.right * _speed * Time.deltaTime;
-            _animator.SetBool("isChasing", _playerSpotted);
+            _animator.SetBool("IsChasing", _playerSpotted);
             _animator.SetFloat("Speed", _stayingStill ? 0.0f : 1.0f);
         }
         else if (!_isAttackOnCooldown)
@@ -65,7 +67,7 @@ public class EnemyController : BaseCharacterController
             PlayerController.PlayerInstance.DealDamage(1, PlayerController.PlayerInstance.transform.position - transform.position);
             _isAttackOnCooldown = true;
             Invoke("AttackCooldown", _attackCooldown);
-            _animator.SetBool("isAttacking", true);
+            _animator.SetTrigger("AttackTrigger");
         }
         if (_isJumping && !_isAirborne)
         {

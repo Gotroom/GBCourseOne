@@ -155,11 +155,11 @@ public class PlayerController : BaseCharacterController
     private void OnKill()
     {
         _health = 0;
+        HealthChanged?.Invoke(_health, _maxHealth);
         _speed = 0;
         _jumpSpeed = 0;
         _isDead = true;
         _animator.SetBool("isDead", true);
-       // _gun.SetActive(false);
         _animator.Play("Wizard_Die");
     }
 
@@ -261,17 +261,13 @@ public class PlayerController : BaseCharacterController
         if (shootingDirection.x <= -MAX_AXIS_TO_FLIP && _isFacingRight)
         {
             Flip();
-            //_gunSprite.flipY = true;
-
         }
         if (shootingDirection.x >= MAX_AXIS_TO_FLIP && !_isFacingRight)
         {
             Flip();
-            //_gunSprite.flipY = false;
         }
 
         var look = Mathf.Atan2(shootingDirection.y, shootingDirection.x) * Mathf.Rad2Deg;
-        //_gun.transform.rotation = Quaternion.Euler(0, 0, look);
     }
 
     private void ProcessPowerJump()
