@@ -21,12 +21,10 @@ public class PlayerController : BaseCharacterController
     private static PlayerController _PlayerInstance;
 
     [SerializeField] private InventoryController _inventory;
-    [SerializeField] private BulletController _bullet;
-    [SerializeField] private MineController _mine;
+    [SerializeField] private BaseWeapon _mainWeapon;
+    [SerializeField] private BaseWeapon _secondaryWeapon;
     [SerializeField] private Transform _weaponTransform;
     [SerializeField] private GameObject _hints;
-    //[SerializeField] private GameObject _gun;
-    //[SerializeField] private SpriteRenderer _gunSprite;
     [SerializeField] private LayerMask _groundLayers;
 
     private float _obstacleDistance = 0.15f;
@@ -80,22 +78,25 @@ public class PlayerController : BaseCharacterController
 
             if (Input.GetButtonDown("Fire1"))
             {
-                Instantiate(_bullet, _weaponTransform.position, _weaponTransform.rotation);
+                Instantiate(_mainWeapon, _weaponTransform.position, _weaponTransform.rotation);
                 //FindObjectOfType<SoundManager>().PlaySoundByName("GunShot");
                 _animator.SetTrigger("attackTrigger");
             }
 
             if (Input.GetButtonDown("Fire2") && Consume.Invoke(ConsumableWeapon.Types.Mine))
-                Instantiate(_mine, _weaponTransform.position, Quaternion.identity);
-
-            if (_bullet)
             {
-                _bullet.Speed = _isFacingRight ? BulletVelocity : BulletVelocity * -1;
-                _bullet.DamageMultiplier = _isPoweredUp ? 2 : 1;
+                Instantiate(_secondaryWeapon, _weaponTransform.position, Quaternion.identity);
+                _animator.SetTrigger("superAttackTrigger");
             }
-            if (_mine)
+
+            if (_mainWeapon)
             {
-                _mine.Speed = _isFacingRight ? ThrowingPower : ThrowingPower * -1;
+                _mainWeapon.Speed = _isFacingRight ? BulletVelocity : BulletVelocity * -1;
+                _mainWeapon.DamageMultiplier = _isPoweredUp ? 2 : 1;
+            }
+            if (_secondaryWeapon)
+            {
+                _secondaryWeapon.Speed = _isFacingRight ? BulletVelocity : BulletVelocity * -1;
             }
         }
     }
