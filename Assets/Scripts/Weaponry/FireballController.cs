@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class FireballController : BaseWeapon
+public class FireballController : ProjectileWeaponController
 {
     #region Fields
 
@@ -12,7 +12,6 @@ public class FireballController : BaseWeapon
     [SerializeField] private float _damageRange = 15.0f;
     [SerializeField] private int _maxDamage = 3;
 
-    private Vector2 _shootingDirection;
     private Collider2D _collider;
 
     #endregion
@@ -23,27 +22,20 @@ public class FireballController : BaseWeapon
     protected override void Start()
     {
         base.Start();
-        Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-        _shootingDirection = worldMousePos - transform.position;
-        _shootingDirection.Normalize();
-        var look = Mathf.Atan2(_shootingDirection.y, _shootingDirection.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, look);
+        _collider = GetComponent<Collider2D>();
     }
 
-    void Update()
+    protected override void OnTriggerEnter2D(Collider2D collision)
     {
-        _rigidbody.velocity = Mathf.Abs(_speed) * _shootingDirection;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("Enemy"))
+        if (!collision.gameObject.CompareTag("Untagged"))
         {
-            //PlayExplodeSound();
+            PlayExplodeSound();
             EnemiesDestroyed?.Invoke(DealMineDamage(true) + DealMineDamage(false));
             //CreateSmoke();
-            Destroy(gameObject);
+            _speed = 0;
+            _animator.Play("Fireball_Impact");
+            _collider.enabled = false;
+            Destroy(gameObject, 0.5f);
         }
     }
 

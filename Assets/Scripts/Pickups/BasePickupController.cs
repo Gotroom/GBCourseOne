@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 using System;
 
-public abstract class BasePickupController : MonoBehaviour
+public class BasePickupController : MonoBehaviour
 {
     #region Fields
 
     public static Action<AudioClip> PlayPickUpSound;
+    public static Predicate<InventoryItem> PickingUp;
+
+    public InventoryItem Item;
 
     [SerializeField] protected AudioClip _pickupSound;
 
@@ -13,13 +16,18 @@ public abstract class BasePickupController : MonoBehaviour
 
     #region UnityMethods
 
+    private void Start()
+    {
+
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
             if (PickUp())
             {
-                Destroy(gameObject.transform.parent.gameObject);
+               // Destroy(gameObject.transform.parent.gameObject);
             }
         }
     }
@@ -28,7 +36,11 @@ public abstract class BasePickupController : MonoBehaviour
 
     #region Methods
 
-    protected abstract bool PickUp();
+    protected virtual bool PickUp()
+    {
+        PickingUp.Invoke(Item);
+        return true;
+    }
 
     #endregion
 }

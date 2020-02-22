@@ -3,20 +3,26 @@ using System.Collections;
 
 public class ParallaxBackgound : MonoBehaviour
 {
+    #region Fields
 
     [SerializeField] Transform _cameraTransform;
+
     [SerializeField] private float _parallaxEffect;
+    [SerializeField] private float _animateSpeed = 1.0f;
     [SerializeField] private bool _isAxisYParallax = false;
+    [SerializeField] private bool _animateBackground = false;
 
     private float _cameraPositionAxisX;
     private float _cameraPositionAxisY;
     private float _cameraStartingPositionY;
     private float _length;
     private Vector2 _startPos;
-    
+
+    #endregion
 
 
-    // Use this for initialization
+    #region UnityMethods
+
     void Start()
     {
         _startPos = transform.position;
@@ -24,8 +30,7 @@ public class ParallaxBackgound : MonoBehaviour
         _cameraStartingPositionY = _cameraTransform.position.y;
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         _cameraPositionAxisX = _cameraTransform.position.x;
         _cameraPositionAxisY = _cameraTransform.position.y - _cameraStartingPositionY;
@@ -35,22 +40,53 @@ public class ParallaxBackgound : MonoBehaviour
         float deltaPosition = _cameraPositionAxisX * (1.0f - _parallaxEffect);
 
         var newPosition = transform.position;
-        newPosition.x = _startPos.x + distanceX;
         
+        if (_animateBackground)
+        {
+            transform.position = Animate(newPosition);
+        }
+        else
+        {
+            transform.position = MoveWithParallax(newPosition, distanceX, distanceY);
+        }
+
+        DisplaceBackground(deltaPosition);
+    }
+
+    #endregion
+
+
+    #region Methods
+
+    private Vector3 Animate(Vector3 position)
+    {
+        position.x = _startPos.x + _animateSpeed;
+        _startPos.x += _animateSpeed;
+        return position;
+    }
+
+    private Vector3 MoveWithParallax(Vector3 position, float deltaX, float deltaY)
+    {
+        position.x = _startPos.x + deltaX;
+
         if (_isAxisYParallax)
         {
-            newPosition.y = _startPos.y + distanceY;
+            position.y = _startPos.y + deltaY;
         }
-        transform.position = newPosition;
+        return position;
+    }
 
-        print(distanceY + " " + newPosition.y + " " + _startPos);
-        if (deltaPosition > _startPos.x + _length)
+    private void DisplaceBackground(float delta)
+    {
+        if (delta > _startPos.x + _length)
         {
             _startPos.x += _length;
         }
-        else if (deltaPosition < _startPos.x - _length)
+        else if (delta < _startPos.x - _length)
         {
             _startPos.x -= _length;
         }
     }
+
+    #endregion
 }

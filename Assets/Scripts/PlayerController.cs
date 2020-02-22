@@ -23,7 +23,8 @@ public class PlayerController : BaseCharacterController
     [SerializeField] private InventoryController _inventory;
     [SerializeField] private BaseWeapon _mainWeapon;
     [SerializeField] private BaseWeapon _secondaryWeapon;
-    [SerializeField] private Transform _weaponTransform;
+    [SerializeField] private Transform _weaponPosition;
+    [SerializeField] private Transform _spellPosition;
     [SerializeField] private GameObject _hints;
     [SerializeField] private LayerMask _groundLayers;
 
@@ -78,14 +79,14 @@ public class PlayerController : BaseCharacterController
 
             if (Input.GetButtonDown("Fire1"))
             {
-                Instantiate(_mainWeapon, _weaponTransform.position, _weaponTransform.rotation);
+                Instantiate(_mainWeapon, _weaponPosition.position, _weaponPosition.rotation);
                 //FindObjectOfType<SoundManager>().PlaySoundByName("GunShot");
                 _animator.SetTrigger("attackTrigger");
             }
 
             if (Input.GetButtonDown("Fire2") && Consume.Invoke(ConsumableWeapon.Types.Mine))
             {
-                Instantiate(_secondaryWeapon, _weaponTransform.position, Quaternion.identity);
+                Instantiate(_secondaryWeapon, _spellPosition.position, Quaternion.identity);
                 _animator.SetTrigger("superAttackTrigger");
             }
 
@@ -242,13 +243,12 @@ public class PlayerController : BaseCharacterController
 
     private bool CheckWallsHit()
     {
-        var mask = LayerMask.GetMask("Platform");
         var position = _collider.bounds.center;
         position += Vector3.up * WALLS_CHECK_OFFSET;
         position += _horizontalMove > 0.0f ? Vector3.right * WALLS_CHECK_OFFSET : Vector3.left * WALLS_CHECK_OFFSET;
         var size = _collider.bounds.size;
         size.y -= WALLS_CHECK_OFFSET;
-        RaycastHit2D wallsHit = Physics2D.BoxCast(position, size, 0f, _horizontalMove > 0 ? Vector2.right : Vector2.left, _obstacleDistance, mask);
+        RaycastHit2D wallsHit = Physics2D.BoxCast(position, size, 0f, _horizontalMove > 0 ? Vector2.right : Vector2.left, _obstacleDistance, _groundLayers);
         Debug.DrawRay(position, _horizontalMove > 0 ? Vector2.right * _obstacleDistance : Vector2.left * _obstacleDistance, Color.blue);
         return wallsHit;
     }

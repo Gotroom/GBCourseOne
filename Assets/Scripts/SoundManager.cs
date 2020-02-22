@@ -9,6 +9,7 @@ public class SoundManager : MonoBehaviour
 
     [SerializeField] private Sound[] _sounds;
     [SerializeField] private AudioSource _sourse;
+    [SerializeField] private Sound _backgroundMusic;
 
     #endregion
 
@@ -23,11 +24,17 @@ public class SoundManager : MonoBehaviour
             _sounds[i].Source.volume = _sounds[i].Volume;
             _sounds[i].Source.pitch = _sounds[i].Pitch;
         }
+        _backgroundMusic.Source = gameObject.AddComponent<AudioSource>();
+        _backgroundMusic.Source.clip = _backgroundMusic.Clip;
+        _backgroundMusic.Source.volume = _backgroundMusic.Volume;
+        _backgroundMusic.Source.pitch = _backgroundMusic.Pitch;
+        _backgroundMusic.Source.loop = true;
     }
 
     void Start()
     {
         BasePickupController.PlayPickUpSound = OnPlayPickUpSound;
+        _backgroundMusic.Source.Play();
     }
 
     #endregion

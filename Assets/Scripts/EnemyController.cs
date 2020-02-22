@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class EnemyController : BaseCharacterController
 {
@@ -20,6 +21,7 @@ public class EnemyController : BaseCharacterController
     private bool _playerSpotted = false;
     private bool _inAttackRange = false;
     private bool _isAttackOnCooldown = false;
+    private bool _isDead = false;
 
     #endregion
 
@@ -35,47 +37,52 @@ public class EnemyController : BaseCharacterController
 
     void Update()
     {
-        print(_playerSpotted);
-        if (CheckForPlayer() && !_playerSpotted)
+        //print(_playerSpotted);
+        if (!_isDead)
         {
-            _playerSpotted = true;
-            Invoke("PlayerLostTimeout", _playerSpottedTimeout);
-        }
-        if (CheckForObstacle())
-        {
-            if (_playerSpotted)
+            if (CheckForPlayer() && !_playerSpotted)
             {
-                _jumpForce = Vector2.up * _jumpSpeed;
-                _isJumping = true;
+                _playerSpotted = true;
+                Invoke("PlayerLostTimeout", _playerSpottedTimeout);
             }
-            else
-                Flip();
+            if (CheckForObstacle())
+            {
+                if (_playerSpotted)
+                {
+                    _jumpForce = Vector2.up * _jumpSpeed;
+                    _isJumping = true;
+                }
+                else
+                    Flip();
+            }
         }
     }
 
     void FixedUpdate()
     {
-        if (!_inAttackRange)
+        if (!_isDead)
         {
-            var speed = _speed * (_stayingStill ? 0.0f : 1.0f);
-            transform.position += Vector3.right * _speed * Time.deltaTime;
-            _animator.SetBool("IsChasing", _playerSpotted);
-            _animator.SetFloat("Speed", _stayingStill ? 0.0f : 1.0f);
+            if (!_inAttackRange)
+            {
+                var speed = _speed * (_stayingStill ? 0.0f : 1.0f);
+                transform.position += Vector3.right * _speed * Time.deltaTime;
+                _animator.SetBool("IsChasing", _playerSpotted);
+                _animator.SetFloat("Speed", _stayingStill ? 0.0f : 1.0f);
+            }
+            else if (!_isAttackOnCooldown)
+            {
+                PlayerController.PlayerInstance.DealDamage(1, PlayerController.PlayerInstance.transform.position - transform.position);
+                _isAttackOnCooldown = true;
+                Invoke("AttackCooldown", _attackCooldown);
+                _animator.SetTrigger("AttackTrigger");
+            }
+            if (_isJumping && !_isAirborne)
+            {
+                _rigidBody.AddForce(_jumpForce, ForceMode2D.Impulse);
+                _isJumping = false;
+                _isAirborne = true;
+            }
         }
-        else if (!_isAttackOnCooldown)
-        {
-            PlayerController.PlayerInstance.DealDamage(1, PlayerController.PlayerInstance.transform.position - transform.position);
-            _isAttackOnCooldown = true;
-            Invoke("AttackCooldown", _attackCooldown);
-            _animator.SetTrigger("AttackTrigger");
-        }
-        if (_isJumping && !_isAirborne)
-        {
-            _rigidBody.AddForce(_jumpForce, ForceMode2D.Impulse);
-            _isJumping = false;
-            _isAirborne = true;
-        }
-
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -151,7 +158,7 @@ public class EnemyController : BaseCharacterController
                 var attackRay = Physics2D.Raycast(_collider.bounds.center, direction, 1.5f, _environmentMask);
                 if (attackRay && attackRay.collider.gameObject.CompareTag("Player"))
                 {
-                    print(attackRay.collider.gameObject.name);
+                   // print(attackRay.collider.gameObject.name);
                     _inAttackRange = true;
                 }
                 else
@@ -189,10 +196,11 @@ public class EnemyController : BaseCharacterController
         if (_health <= 0)
         {
             PlayerController.PlayerInstance.Kills++;
-            Destroy(gameObject);
-            return true;
+            _animator.Play("Orc_Die");
+            Destroy(gameObject, 1f);
+            _isDead = true;
         }
-        return false;
+        return _isDead;
     }
 
     protected override void Flip()

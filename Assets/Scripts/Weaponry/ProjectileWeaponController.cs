@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 
 
-public class BulletController : BaseWeapon
+public class ProjectileWeaponController : BaseWeapon
 {
     #region Fields
 
-    private Vector2 _shootingDirection;
+    [SerializeField] protected Animator _animator;
+
+    protected Vector2 _shootingDirection;
 
     #endregion
 
@@ -22,19 +24,19 @@ public class BulletController : BaseWeapon
         transform.rotation = Quaternion.Euler(0, 0, look);
     }
 
-    void Update()
+    protected virtual void Update()
     {
         _rigidbody.velocity = Mathf.Abs(_speed) * _shootingDirection;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    protected virtual void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
             if (collision.gameObject.GetComponent<EnemyController>().DealDamage(_defaultDamage * _damageMultiplier))
                 EnemiesDestroyed.Invoke(1);
         }
-        if (!collision.gameObject.CompareTag("Player")) Destroy(gameObject);
+        if (!collision.gameObject.CompareTag("Player") && !collision.gameObject.CompareTag("Foreground")) Destroy(gameObject);
     }
 
     #endregion

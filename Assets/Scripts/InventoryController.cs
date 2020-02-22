@@ -1,15 +1,19 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 
 public class InventoryController : MonoBehaviour
 {
     #region Fields
 
-    public static Action<ConsumableWeapon.Types, int> Consumed;
+    private const int MAX_SLOTS = 8;
 
-    [SerializeField] private int _maxMines = 3;
-    [SerializeField] private int _minesCount = 2;
+    public static Action<ConsumableWeapon.Types, int> Consumed;
+    public static Action<InventoryItem, int> PickedUp;
+
+    [SerializeField] private int _maxItemsPerSlot = 3;
 
     #endregion
 
@@ -19,6 +23,7 @@ public class InventoryController : MonoBehaviour
     void Start()
     {
         PlayerController.Consume = OnConsume;
+        BasePickupController.PickingUp = OnPickUp;
     }
 
     #endregion
@@ -33,18 +38,24 @@ public class InventoryController : MonoBehaviour
         {
             case ConsumableWeapon.Types.Mine:
             {
-                if (_minesCount > 0)
-                {
-                    hasConsumable = true;
-                    _minesCount--;
-                    Consumed?.Invoke(ConsumableWeapon.Types.Mine, _minesCount);
-                }
+                //if (_minesCount > 0)
+                //{
+                //    hasConsumable = true;
+                //    _minesCount--;
+                //    Consumed?.Invoke(ConsumableWeapon.Types.Mine, _minesCount);
+                //}
                 break;
             }
             default:
                 break;
         }
         return hasConsumable;
+    }
+
+    private bool OnPickUp(InventoryItem item)
+    {
+        PickedUp.Invoke(item, 1);
+        return true;
     }
 
     #endregion
