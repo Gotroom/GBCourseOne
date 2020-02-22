@@ -18,16 +18,40 @@ public class UIInventory : MonoBehaviour
 
     }
 
-    private void OnPickedUp(InventoryItem item, int count)
+    private bool OnPickedUp(InventoryItem item)
     {
         //gameObject.GetComponents<>
-        for (int i = 0; i < _slots.Length - 1; i++)
+        int countNew = item.Count;
+        for (int i = 0; i < _slots.Length; i++)
+        {
+            if (_slots[i]._item.Name == item.Name)
+            {
+                int countToPlaceInExistingSlot = InventoryController.MaxItemsPerSlot - _slots[i].CountInSlot;
+                if (countToPlaceInExistingSlot == 0)
+                    continue;
+                if (countNew - countToPlaceInExistingSlot > 0)
+                {
+                    _slots[i].IncreaseExistingItemCount(countToPlaceInExistingSlot);
+                    countNew -= countToPlaceInExistingSlot;
+                }
+                else
+                {
+                    _slots[i].IncreaseExistingItemCount(countNew);
+                    countNew -= countNew;
+                }
+                if (countNew > 0)
+                    break;
+                return true;
+            }
+        }
+        for (int i = 0; i < _slots.Length; i++)
         {
             if (_slots[i]._item.Image == null)
             {
-                _slots[i].AddItem(item);
-                break;
+                _slots[i].AddItem(item, countNew);
+                return true;
             }
         }
+        return false;
     }
 }

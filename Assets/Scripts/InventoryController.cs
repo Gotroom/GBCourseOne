@@ -8,12 +8,12 @@ public class InventoryController : MonoBehaviour
 {
     #region Fields
 
-    private const int MAX_SLOTS = 8;
+    public const int MAX_SLOTS = 8;
 
     public static Action<ConsumableWeapon.Types, int> Consumed;
-    public static Action<InventoryItem, int> PickedUp;
+    public static Func<InventoryItem, bool> PickedUp;
 
-    [SerializeField] private int _maxItemsPerSlot = 3;
+    public static int MaxItemsPerSlot = 3;
 
     #endregion
 
@@ -54,7 +54,7 @@ public class InventoryController : MonoBehaviour
 
     private bool OnPickUp(InventoryItem item)
     {
-        PickedUp.Invoke(item, 1);
+        PickedUp.Invoke(item);
         return true;
     }
 

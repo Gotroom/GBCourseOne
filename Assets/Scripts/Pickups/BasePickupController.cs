@@ -27,7 +27,7 @@ public class BasePickupController : MonoBehaviour
         {
             if (PickUp())
             {
-               // Destroy(gameObject.transform.parent.gameObject);
+                Destroy(gameObject);
             }
         }
     }
@@ -38,8 +38,7 @@ public class BasePickupController : MonoBehaviour
 
     protected virtual bool PickUp()
     {
-        PickingUp.Invoke(Item);
-        return true;
+        return PickingUp.Invoke(Item);
     }
 
     #endregion
