@@ -11,6 +11,11 @@ public class UIInventorySlot : MonoBehaviour
     [SerializeField] private Image _image;
     [SerializeField] private Text _countText;
 
+    private void Start()
+    {
+        _item = null;
+    }
+
 
     public void AddItem(InventoryItem item, int count)
     {
@@ -33,5 +38,21 @@ public class UIInventorySlot : MonoBehaviour
         _item = null;
         _image.sprite = null;
         _image.enabled = false;
+    }
+
+    public void OnClick()
+    {
+        CountInSlot--;
+        if (CountInSlot > 0)
+        {
+            _countText.text = $"{CountInSlot}";
+        }
+        else
+        {
+            _item = null;
+            _image.sprite = null;
+            _image.enabled = false;
+            _countText.enabled = false;
+        }
     }
 }

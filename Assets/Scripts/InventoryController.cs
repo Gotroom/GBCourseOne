@@ -54,8 +54,7 @@ public class InventoryController : MonoBehaviour
 
     private bool OnPickUp(InventoryItem item)
     {
-        PickedUp.Invoke(item);
-        return true;
+        return PickedUp.Invoke(item);
     }
 
     #endregion

@@ -15,6 +15,7 @@ public class PlayerController : BaseCharacterController
     public static Action<int, int> HealthChanged;
     public static Func<ConsumableWeapon.Types, bool> Consume;
 
+    [HideInInspector] public bool PreventFiring = false;
     [HideInInspector] public int Health => _health;
     [HideInInspector] public int Kills { get { return _killCounter; } set { _killCounter = value; } }
     
@@ -77,27 +78,30 @@ public class PlayerController : BaseCharacterController
 
             ProcessMousePosition();
 
-            if (Input.GetButtonDown("Fire1"))
+            if (!PreventFiring)
             {
-                Instantiate(_mainWeapon, _weaponPosition.position, _weaponPosition.rotation);
-                //FindObjectOfType<SoundManager>().PlaySoundByName("GunShot");
-                _animator.SetTrigger("attackTrigger");
-            }
+                if (Input.GetButtonDown("Fire1"))
+                {
+                    Instantiate(_mainWeapon, _weaponPosition.position, _weaponPosition.rotation);
+                    //FindObjectOfType<SoundManager>().PlaySoundByName("GunShot");
+                    _animator.SetTrigger("attackTrigger");
+                }
 
-            if (Input.GetButtonDown("Fire2") && Consume.Invoke(ConsumableWeapon.Types.Mine))
-            {
-                Instantiate(_secondaryWeapon, _spellPosition.position, Quaternion.identity);
-                _animator.SetTrigger("superAttackTrigger");
-            }
+                if (Input.GetButtonDown("Fire2") && Consume.Invoke(ConsumableWeapon.Types.Mine))
+                {
+                    Instantiate(_secondaryWeapon, _spellPosition.position, Quaternion.identity);
+                    _animator.SetTrigger("superAttackTrigger");
+                }
 
-            if (_mainWeapon)
-            {
-                _mainWeapon.Speed = _isFacingRight ? BulletVelocity : BulletVelocity * -1;
-                _mainWeapon.DamageMultiplier = _isPoweredUp ? 2 : 1;
-            }
-            if (_secondaryWeapon)
-            {
-                _secondaryWeapon.Speed = _isFacingRight ? BulletVelocity : BulletVelocity * -1;
+                if (_mainWeapon)
+                {
+                    _mainWeapon.Speed = _isFacingRight ? BulletVelocity : BulletVelocity * -1;
+                    _mainWeapon.DamageMultiplier = _isPoweredUp ? 2 : 1;
+                }
+                if (_secondaryWeapon)
+                {
+                    _secondaryWeapon.Speed = _isFacingRight ? BulletVelocity : BulletVelocity * -1;
+                }
             }
         }
     }
