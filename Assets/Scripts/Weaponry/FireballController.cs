@@ -27,7 +27,7 @@ public class FireballController : ProjectileWeaponController
 
     protected override void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.gameObject.CompareTag("Untagged"))
+        if (!collision.gameObject.CompareTag("Untagged") && !collision.gameObject.CompareTag("Foreground"))
         {
             PlayExplodeSound();
             EnemiesDestroyed?.Invoke(DealMineDamage(true) + DealMineDamage(false));

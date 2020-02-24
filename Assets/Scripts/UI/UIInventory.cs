@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using System.Collections;
+using System;
+using System.Collections.Generic;
 
 public class UIInventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
+    public static Action ClearSelection;
+
     private UIInventorySlot[] _slots;
 
     private KeyCode[] _keyCodes =
@@ -17,61 +20,70 @@ public class UIInventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         KeyCode.Alpha7,
         KeyCode.Alpha8
     };
-    // Use this for initialization
-    void Start()
+
+    private void Start()
     {
-        InventoryController.PickedUp = OnPickedUp;
+        InventoryController.UpdateUI = OnUpdate;
         _slots = GetComponentsInChildren<UIInventorySlot>();
         print(_slots.Length);
     }
 
-    // Update is called once per frame
-    void Update()
+
+    private void Update()
     {
         for(int i = 0; i < _keyCodes.Length; i++)
         {
             if (Input.GetKeyDown(_keyCodes[i]))
             {
+                if (_slots[i].Item != null && _slots[i].Item.Type == InventoryItem.ItemType.Usable)
+                {
+                    ClearSelection.Invoke();
+                }
                 _slots[i].OnClick();
             }
         }
     }
 
-    private bool OnPickedUp(InventoryItem item)
+    private void OnUpdate(Dictionary<InventoryItem, int> items)
     {
-        //gameObject.GetComponents<>
-        int countNew = item.Count;
-        for (int i = 0; i < _slots.Length; i++)
+        int itterator = 0;
+        foreach (var item in items)
         {
-            if (_slots[i]._item != null && _slots[i]._item.Name == item.Name)
-            {
-                int countToPlaceInExistingSlot = InventoryController.MaxItemsPerSlot - _slots[i].CountInSlot;
-                if (countToPlaceInExistingSlot == 0)
-                    continue;
-                if (countNew - countToPlaceInExistingSlot > 0)
-                {
-                    _slots[i].IncreaseExistingItemCount(countToPlaceInExistingSlot);
-                    countNew -= countToPlaceInExistingSlot;
-                }
-                else
-                {
-                    _slots[i].IncreaseExistingItemCount(countNew);
-                    countNew -= countNew;
-                }
-                if (countNew > 0)
-                    break;
-                return true;
-            }
+            _slots[itterator].AddItem(item.Key, item.Value);
+            itterator++;
         }
-        for (int i = 0; i < _slots.Length; i++)
-        {
-            if (_slots[i]._item == null)
-            {
-                _slots[i].AddItem(item, countNew);
-                return true;
-            }
-        }
-        return false;
+        //int countNew = item.Count;
+        //for (int i = 0; i < _slots.Length; i++)
+        //{
+        //    if (_slots[i].Item != null && _slots[i].Item.Name == item.Name)
+        //    {
+        //        int countToPlaceInExistingSlot = InventoryController.MaxItemsPerSlot - _slots[i].CountInSlot;
+        //        if (countToPlaceInExistingSlot == 0)
+        //            continue;
+        //        if (countNew - countToPlaceInExistingSlot > 0)
+        //        {
+        //            _slots[i].IncreaseExistingItemCount(countToPlaceInExistingSlot);
+        //            countNew -= countToPlaceInExistingSlot;
+        //        }
+        //        else
+        //        {
+        //            _slots[i].IncreaseExistingItemCount(countNew);
+        //            countNew -= countNew;
+        //        }
+        //        if (countNew > 0)
+        //            break;
+        //        return true;
+        //    }
+        //}
+        //for (int i = 0; i < _slots.Length; i++)
+        //{
+        //    if (_slots[i].Item == null)
+        //    {
+        //        _slots[i].AddItem(item, countNew);
+        //        return true;
+        //    }
+        //}
+        //return false;
     }
 
     public void OnPointerEnter(PointerEventData eventData)

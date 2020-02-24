@@ -16,7 +16,7 @@ public class HealthKitController : BasePickupController
 
     protected override bool PickUp()
     {
-        return Heal.Invoke(1);
+        return PickingUp.Invoke(Item, Count);
     }
 
     #endregion

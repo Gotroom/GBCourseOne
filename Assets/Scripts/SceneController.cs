@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Collections.Generic;
 using System.Collections;
 using System;
 
@@ -10,8 +11,10 @@ public class SceneController : MonoBehaviour
     #region Fields
 
     public static Action<bool> LoadingScene;
+    public static Action StorePlayerData;
 
-    [SerializeField] private GameObject _player;
+    private static List<InventoryItem> _inventoryItems;
+    private static int _playerHealth;
 
     private string _sceneToLoad;
     private int _sceneToLoadIndex;
@@ -33,19 +36,19 @@ public class SceneController : MonoBehaviour
     public void LoadZone(int index)
     {
         _sceneToLoadIndex = index;
-        StartCoroutine(LoadLeveAsyncByIndex());
+        StartCoroutine(LoadLeveAsyncByIndex(false));
     }
 
     public void LoadZone(string name)
     {
         _sceneToLoad = name;
-        StartCoroutine(LoadLeveAsync());
+        StartCoroutine(LoadLeveAsync(false));
     }
 
     private void OnWarpToZone(string name)
     {
         _sceneToLoad = name;
-        StartCoroutine(LoadLeveAsync());
+        StartCoroutine(LoadLeveAsync(true));
     }
 
     public Scene GetCurrentScene()
@@ -55,35 +58,29 @@ public class SceneController : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        //LoadingScene?.Invoke(false);
+        SceneManager.sceneLoaded -= OnSceneLoaded;
         Time.timeScale = 1;
-        //_isGamePaused = false;
-        //Paused?.Invoke(false);
     }
 
-    IEnumerator LoadLeveAsync()
+    IEnumerator LoadLeveAsync(bool savePlayerData)
     {
-        Scene currentScene = SceneManager.GetActiveScene();
         LoadingScene.Invoke(true);
-        AsyncOperation load = SceneManager.LoadSceneAsync(_sceneToLoad, LoadSceneMode.Single);
-        while (!load.isDone)
+        if (savePlayerData)
         {
-            yield return null;
+            StorePlayerData.Invoke();
         }
-       // SceneManager.UnloadSceneAsync(currentScene);
+        yield return SceneManager.LoadSceneAsync(_sceneToLoad, LoadSceneMode.Single);
+        LoadingScene.Invoke(false);
     }
 
-    IEnumerator LoadLeveAsyncByIndex()
+    IEnumerator LoadLeveAsyncByIndex(bool savePlayerData)
     {
-        Scene currentScene = SceneManager.GetActiveScene();
         LoadingScene.Invoke(true);
-       // AsyncOperation load = SceneManager.LoadSceneAsync(_sceneToLoadIndex, LoadSceneMode.Additive);
-        //while (!load.isDone)
-        //{
-            //yield return SceneManager.UnloadSceneAsync(currentScene);
-        //}
-            yield return SceneManager.LoadSceneAsync(_sceneToLoadIndex, LoadSceneMode.Single);
-
+        if (savePlayerData)
+        {
+            StorePlayerData.Invoke();
+        }
+        yield return SceneManager.LoadSceneAsync(_sceneToLoadIndex, LoadSceneMode.Single);
         LoadingScene.Invoke(false);
     }
 

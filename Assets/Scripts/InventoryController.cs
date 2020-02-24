@@ -11,9 +11,12 @@ public class InventoryController : MonoBehaviour
     public const int MAX_SLOTS = 8;
 
     public static Action<ConsumableWeapon.Types, int> Consumed;
-    public static Func<InventoryItem, bool> PickedUp;
+    public static Action<Dictionary<InventoryItem, int>> UpdateUI;
 
-    public static int MaxItemsPerSlot = 3;
+    public static int MaxSpace = 80;
+    public Dictionary<InventoryItem, int> Items;
+
+    private int _spaceLeft = MaxSpace;
 
     #endregion
 
@@ -22,8 +25,13 @@ public class InventoryController : MonoBehaviour
 
     void Start()
     {
-        PlayerController.Consume = OnConsume;
+        Items = new Dictionary<InventoryItem, int>(MAX_SLOTS);
+        foreach (var item in PlayerDataController.instance.ItemsList)
+        {
+            Items.Add(item.Key, item.Value);
+        }
         BasePickupController.PickingUp = OnPickUp;
+        FillLoaded();
     }
 
     #endregion
@@ -31,30 +39,48 @@ public class InventoryController : MonoBehaviour
 
     #region Methods
 
-    private bool OnConsume(ConsumableWeapon.Types type)
+    private bool OnPickUp(InventoryItem item, int count)
     {
-        bool hasConsumable = false;
-        switch (type)
+        print(item.Count);
+        int countNew = count;
+
+        if (Items.ContainsKey(item))
         {
-            case ConsumableWeapon.Types.Mine:
+
+            if (count < _spaceLeft)
             {
-                //if (_minesCount > 0)
-                //{
-                //    hasConsumable = true;
-                //    _minesCount--;
-                //    Consumed?.Invoke(ConsumableWeapon.Types.Mine, _minesCount);
-                //}
-                break;
+                Items[item] += count;
+                _spaceLeft -= count;
             }
-            default:
-                break;
+            else
+            {
+                Items[item] += _spaceLeft;
+                _spaceLeft -= _spaceLeft;
+            }
+
+            UpdateUI.Invoke(Items);
+            return true;
         }
-        return hasConsumable;
+        else
+        {
+            if (count < _spaceLeft)
+            {
+                Items.Add(item, count);
+                _spaceLeft -= count;
+            }
+            else
+            {
+                Items.Add(item, _spaceLeft);
+                _spaceLeft -= _spaceLeft;
+            }
+            UpdateUI.Invoke(Items);
+            return true;
+        }
     }
 
-    private bool OnPickUp(InventoryItem item)
+    public void FillLoaded()
     {
-        return PickedUp.Invoke(item);
+        UpdateUI?.Invoke(Items);
     }
 
     #endregion

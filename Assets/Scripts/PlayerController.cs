@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 
 public class PlayerController : BaseCharacterController
@@ -13,7 +14,7 @@ public class PlayerController : BaseCharacterController
     public static Action<bool> FlyingModeApplied;
     public static Action<bool> PowerUpApplied;
     public static Action<int, int> HealthChanged;
-    public static Func<ConsumableWeapon.Types, bool> Consume;
+    public static Action SecondaryWeaponUsed;
 
     [HideInInspector] public bool PreventFiring = false;
     [HideInInspector] public int Health => _health;
@@ -23,7 +24,7 @@ public class PlayerController : BaseCharacterController
 
     [SerializeField] private InventoryController _inventory;
     [SerializeField] private BaseWeapon _mainWeapon;
-    [SerializeField] private BaseWeapon _secondaryWeapon;
+    private BaseWeapon _secondaryWeapon;
     [SerializeField] private Transform _weaponPosition;
     [SerializeField] private Transform _spellPosition;
     [SerializeField] private GameObject _hints;
@@ -46,7 +47,16 @@ public class PlayerController : BaseCharacterController
     override protected void Start()
     {
         base.Start();
-        _health = _maxHealth;
+        var savedData = PlayerDataController.instance;
+        if (savedData != null)
+        {
+            _health = savedData.PlayerHealth;
+        }
+        else
+        {
+            _health = _maxHealth;
+        }
+        //_health = PlayerDataController.instance.PlayerHealth;
         _PlayerInstance = this;
         _hints.SetActive(false);
         _backwardSpeed = _speed / 2.0f;
@@ -55,7 +65,9 @@ public class PlayerController : BaseCharacterController
         HealthKitController.Heal = OnHeal;
         PowerUpController.ApplyPowerUp = OnPowerUp;
         FlyModeController.ApplyFlyingMode = OnFlyingMode;
+        InventoryItem.WieldWeapon = OnWieldWeapon;
         UIController.Paused = OnPaused;
+        _secondaryWeapon = null;
     }
 
     void Update()
@@ -87,10 +99,11 @@ public class PlayerController : BaseCharacterController
                     _animator.SetTrigger("attackTrigger");
                 }
 
-                if (Input.GetButtonDown("Fire2") && Consume.Invoke(ConsumableWeapon.Types.Mine))
+                if (Input.GetButtonDown("Fire2") && _secondaryWeapon != null)
                 {
                     Instantiate(_secondaryWeapon, _spellPosition.position, Quaternion.identity);
                     _animator.SetTrigger("superAttackTrigger");
+                    SecondaryWeaponUsed.Invoke();
                 }
 
                 if (_mainWeapon)
@@ -193,6 +206,11 @@ public class PlayerController : BaseCharacterController
             return true;
         }
         return false;
+    }
+
+    private void OnWieldWeapon(BaseWeapon weapon)
+    {
+        _secondaryWeapon = weapon;
     }
 
     private void PowerUpExpired()

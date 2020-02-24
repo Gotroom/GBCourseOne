@@ -16,6 +16,7 @@ public class UIHealthDisplay : MonoBehaviour
     private void Start()
     {
         PlayerController.HealthChanged = OnHealthChanged;
+        OnHealthChanged(PlayerDataController.instance.PlayerHealth, 5);
     }
 
     #endregion

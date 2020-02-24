@@ -6,9 +6,10 @@ public class BasePickupController : MonoBehaviour
     #region Fields
 
     public static Action<AudioClip> PlayPickUpSound;
-    public static Predicate<InventoryItem> PickingUp;
+    public static Func<InventoryItem, int, bool> PickingUp;
 
     public InventoryItem Item;
+    public int Count;
 
     [SerializeField] protected AudioClip _pickupSound;
 
@@ -21,9 +22,10 @@ public class BasePickupController : MonoBehaviour
 
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.CompareTag("Player"))
+        print(collision);
+        if (collision.gameObject.CompareTag("Player"))
         {
             if (PickUp())
             {
@@ -38,7 +40,7 @@ public class BasePickupController : MonoBehaviour
 
     protected virtual bool PickUp()
     {
-        return PickingUp.Invoke(Item);
+        return PickingUp.Invoke(Item, Count);
     }
 
     #endregion
