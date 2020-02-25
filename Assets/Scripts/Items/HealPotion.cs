@@ -8,6 +8,7 @@ public class HealPotion : InventoryItem
 
     public override bool Consume()
     {
+        base.Consume();
         return HealthKitController.Heal(HealingPower);
     }
 

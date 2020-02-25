@@ -7,10 +7,13 @@ public class InventoryItem : ScriptableObject
     public enum ItemType
     {
         Usable,
-        Consumable
+        Consumable,
+        Key
     }
 
     public static Action<BaseWeapon> WieldWeapon;
+    public static Action<InventoryItem> Consumed;
+    public static Action<InventoryItem> Used;
 
     public Sprite Image;
     public string Name = "New Item";
@@ -19,6 +22,13 @@ public class InventoryItem : ScriptableObject
 
     public virtual bool Consume()
     {
+        Consumed?.Invoke(this);
+        return true;
+    }
+
+    public virtual bool Use()
+    {
+        Used?.Invoke(this);
         return true;
     }
 

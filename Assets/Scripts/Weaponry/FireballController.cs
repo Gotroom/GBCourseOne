@@ -23,15 +23,25 @@ public class FireballController : ProjectileWeaponController
     {
         base.Start();
         _collider = GetComponent<Collider2D>();
+        if (_isUsedByEnemy)
+        {
+            _shootingDirection = PlayerController.PlayerInstance.transform.position - transform.position;
+            _shootingDirection.Normalize();
+            var look = Mathf.Atan2(_shootingDirection.y, _shootingDirection.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0, 0, look);
+        }
     }
 
     protected override void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.gameObject.CompareTag("Untagged") && !collision.gameObject.CompareTag("Foreground"))
+        if (!collision.gameObject.CompareTag("Untagged") && 
+            !collision.gameObject.CompareTag("Foreground") &&
+            !collision.gameObject.CompareTag("BossFloor") &&
+            (_isUsedByEnemy ? !collision.gameObject.CompareTag("Enemy") : true))
         {
             PlayExplodeSound();
             EnemiesDestroyed?.Invoke(DealMineDamage(true) + DealMineDamage(false));
-            //CreateSmoke();
+            CreateSmoke();
             _speed = 0;
             _animator.Play("Fireball_Impact");
             _collider.enabled = false;
@@ -91,7 +101,7 @@ public class FireballController : ProjectileWeaponController
 
     private void CreateSmoke()
     {
-        //Instantiate(_smokeAfterExplosion, _collider.bounds.min, transform.rotation);
+        Instantiate(_smokeAfterExplosion, _collider.bounds.min, Quaternion.identity);
     }
 
     #endregion

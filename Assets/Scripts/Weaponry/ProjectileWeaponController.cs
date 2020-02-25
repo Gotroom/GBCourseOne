@@ -7,6 +7,9 @@ public class ProjectileWeaponController : BaseWeapon
 
     [SerializeField] protected Animator _animator;
 
+    [SerializeField] protected bool _isUsedByEnemy = false;
+    [SerializeField] protected bool _isAnimated = true;
+
     protected Vector2 _shootingDirection;
 
     #endregion
@@ -16,12 +19,15 @@ public class ProjectileWeaponController : BaseWeapon
     protected override void Start()
     {
         base.Start();
-        Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        if (!_isUsedByEnemy)
+        {
+            Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-        _shootingDirection = worldMousePos - transform.position;
-        _shootingDirection.Normalize();
-        var look = Mathf.Atan2(_shootingDirection.y, _shootingDirection.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, look);
+            _shootingDirection = worldMousePos - transform.position;
+            _shootingDirection.Normalize();
+            var look = Mathf.Atan2(_shootingDirection.y, _shootingDirection.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0, 0, look);
+        }
     }
 
     protected virtual void Update()
@@ -31,12 +37,23 @@ public class ProjectileWeaponController : BaseWeapon
 
     protected virtual void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        if (_isUsedByEnemy)
         {
-            if (collision.gameObject.GetComponent<EnemyController>().DealDamage(_defaultDamage * _damageMultiplier))
-                EnemiesDestroyed.Invoke(1);
+            if (collision.gameObject.CompareTag("Player"))
+            {
+                collision.gameObject.GetComponent<PlayerController>().DealDamage(_defaultDamage * _damageMultiplier, Vector2.right * (PlayerController.PlayerInstance.transform.position - transform.position));
+            }
+            if (!collision.gameObject.CompareTag("Enemy") && !collision.gameObject.CompareTag("Foreground")) Destroy(gameObject);
         }
-        if (!collision.gameObject.CompareTag("Player") && !collision.gameObject.CompareTag("Foreground")) Destroy(gameObject);
+        else
+        {
+            if (collision.gameObject.CompareTag("Enemy"))
+            {
+                if (collision.gameObject.GetComponent<EnemyController>().DealDamage(_defaultDamage * _damageMultiplier))
+                    EnemiesDestroyed.Invoke(1);
+            }
+            if (!collision.gameObject.CompareTag("Player") && !collision.gameObject.CompareTag("Foreground")) Destroy(gameObject);
+        }
     }
 
     #endregion

@@ -137,7 +137,10 @@ MonoBehaviour:
   _defaultDamage: 1
   _damageMultiplier: 1
   _animator: {fileID: 4699446057808557460}
-  _smokeAfterExplosion: {fileID: 0}
+  _isUsedByEnemy: 0
+  _isAnimated: 1
+  _smokeAfterExplosion: {fileID: 1476753299188261417, guid: 7494276ffa09c01488f58e2732e7eb3e,
+    type: 3}
   _layers:
     serializedVersion: 2
     m_Bits: 48896

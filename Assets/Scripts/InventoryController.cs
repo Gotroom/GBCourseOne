@@ -26,11 +26,17 @@ public class InventoryController : MonoBehaviour
     void Start()
     {
         Items = new Dictionary<InventoryItem, int>(MAX_SLOTS);
-        foreach (var item in PlayerDataController.instance.ItemsList)
+        if (PlayerDataController.instance != null)
         {
-            Items.Add(item.Key, item.Value);
+            foreach (var item in PlayerDataController.instance.ItemsList)
+            {
+                Items.Add(item.Key, item.Value);
+                _spaceLeft -= item.Value;
+            }
         }
         BasePickupController.PickingUp = OnPickUp;
+        InventoryItem.Consumed = OnConsumed;
+        InventoryItem.Used = OnUsed;
         FillLoaded();
     }
 
@@ -41,47 +47,75 @@ public class InventoryController : MonoBehaviour
 
     private bool OnPickUp(InventoryItem item, int count)
     {
-        print(item.Count);
-        int countNew = count;
-
         if (Items.ContainsKey(item))
         {
-
-            if (count < _spaceLeft)
-            {
-                Items[item] += count;
-                _spaceLeft -= count;
-            }
-            else
-            {
-                Items[item] += _spaceLeft;
-                _spaceLeft -= _spaceLeft;
-            }
-
-            UpdateUI.Invoke(Items);
-            return true;
+            AddExisting(item, count);
         }
         else
         {
-            if (count < _spaceLeft)
-            {
-                Items.Add(item, count);
-                _spaceLeft -= count;
-            }
-            else
-            {
-                Items.Add(item, _spaceLeft);
-                _spaceLeft -= _spaceLeft;
-            }
-            UpdateUI.Invoke(Items);
-            return true;
+            AddNew(item, count);
         }
+        return true;
+    }
+
+    private void AddExisting(InventoryItem item, int count)
+    {
+        if (count < _spaceLeft)
+        {
+            Items[item] += count;
+            _spaceLeft -= count;
+        }
+        else
+        {
+            Items[item] += _spaceLeft;
+            _spaceLeft -= _spaceLeft;
+        }
+
+        UpdateUI.Invoke(Items);
+    }
+
+    private void AddNew(InventoryItem item, int count)
+    {
+        if (count < _spaceLeft)
+        {
+            Items.Add(item, count);
+            _spaceLeft -= count;
+        }
+        else
+        {
+            Items.Add(item, _spaceLeft);
+            _spaceLeft -= _spaceLeft;
+        }
+        UpdateUI.Invoke(Items);
     }
 
     public void FillLoaded()
     {
         UpdateUI?.Invoke(Items);
     }
+
+    private void OnConsumed(InventoryItem item)
+    {
+        if (Items.ContainsKey(item))
+        {
+            Items[item]--;
+            if (Items[item] == 0)
+                Items.Remove(item);
+            UpdateUI?.Invoke(Items);
+        }
+    }
+
+    private void OnUsed(InventoryItem item)
+    {
+        if (Items.ContainsKey(item))
+        {
+            Items[item]--;
+            if (Items[item] == 0)
+                Items.Remove(item);
+            UpdateUI?.Invoke(Items);
+        }
+    }
+
 
     #endregion
 }

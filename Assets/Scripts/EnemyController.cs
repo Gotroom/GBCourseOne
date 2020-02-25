@@ -5,23 +5,25 @@ public class EnemyController : BaseCharacterController
 {
     #region Fields
 
-    private const float VIEWING_ANGLE = 30;
+    protected const float VIEWING_ANGLE = 45;
 
-    [SerializeField] private LayerMask _environmentMask;
-    [SerializeField] private float _fieldOfView = 5f;
-    [SerializeField] private bool _stayingStill = false;
+    [SerializeField] protected LayerMask _environmentMask;
 
-    private Vector2 _rightCliff;
-    private Vector2 _leftCliff;
+    [SerializeField] protected float _fieldOfView = 5f;
+    [SerializeField] protected float _attackDistance = 1f;
+    [SerializeField] protected float _attackCooldown = 0.5f;
+    [SerializeField] protected bool _stayingStill = false;
 
-    private float _playerSpottedTimeout = 3.0f;
-    private float _initX;
-    private float _attackCooldown = 1.0f;
-    private float _obstacleDistance = 2.0f;
-    private bool _playerSpotted = false;
-    private bool _inAttackRange = false;
-    private bool _isAttackOnCooldown = false;
-    private bool _isDead = false;
+    protected Vector2 _rightCliff;
+    protected Vector2 _leftCliff;
+
+    protected float _playerSpottedTimeout = 3.0f;
+    protected float _initX;
+    protected float _obstacleDistance = 2.0f;
+    protected bool _playerSpotted = false;
+    protected bool _inAttackRange = false;
+    protected bool _isAttackOnCooldown = false;
+    protected bool _isDead = false;
 
     #endregion
 
@@ -35,9 +37,8 @@ public class EnemyController : BaseCharacterController
         _rightCliff = new Vector2(1, -1f);
     }
 
-    void Update()
+    protected virtual void Update()
     {
-        //print(_playerSpotted);
         if (!_isDead)
         {
             if (CheckForPlayer() && !_playerSpotted)
@@ -58,7 +59,7 @@ public class EnemyController : BaseCharacterController
         }
     }
 
-    void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         if (!_isDead)
         {
@@ -71,10 +72,7 @@ public class EnemyController : BaseCharacterController
             }
             else if (!_isAttackOnCooldown)
             {
-                PlayerController.PlayerInstance.DealDamage(1, PlayerController.PlayerInstance.transform.position - transform.position);
-                _isAttackOnCooldown = true;
-                Invoke("AttackCooldown", _attackCooldown);
-                _animator.SetTrigger("AttackTrigger");
+                AttackPlayer();
             }
             if (_isJumping && !_isAirborne)
             {
@@ -98,18 +96,25 @@ public class EnemyController : BaseCharacterController
 
     #region Methods
 
-    private void AttackCooldown()
+    protected virtual void AttackCooldown()
     {
         _isAttackOnCooldown = false;
-        _animator.SetBool("isAttacking", false);
     }
 
-    private void PlayerLostTimeout()
+    protected void PlayerLostTimeout()
     {
         _playerSpotted = false;
     }
 
-    private bool CheckForObstacle()
+    protected virtual void AttackPlayer()
+    {
+        PlayerController.PlayerInstance.DealDamage(1, Vector2.right * (PlayerController.PlayerInstance.transform.position - transform.position));
+        _isAttackOnCooldown = true;
+        Invoke("AttackCooldown", _attackCooldown);
+        _animator.SetTrigger("AttackTrigger");
+    }
+
+    protected bool CheckForObstacle()
     {
         var sidesCast = Physics2D.Raycast(_collider.bounds.center, _isFacingRight ? Vector2.right : Vector2.left,
             _obstacleDistance, _environmentMask);
@@ -122,7 +127,7 @@ public class EnemyController : BaseCharacterController
         return false;
     }
 
-    private bool CheckForPlayer()
+    protected bool CheckForPlayer()
     {
         _inAttackRange = false;
         var direction = PlayerController.PlayerInstance.transform.position - transform.position;
@@ -146,7 +151,7 @@ public class EnemyController : BaseCharacterController
         }
 
         var rayTowardsPlayer = Physics2D.Raycast(_collider.bounds.center, direction, _fieldOfView, _environmentMask);
-        Debug.DrawRay(_collider.bounds.center, direction.normalized * 1.5f, Color.red);
+        Debug.DrawRay(_collider.bounds.center, direction.normalized * _fieldOfView, Color.red);
         if (rayTowardsPlayer)
         {
             if (!rayTowardsPlayer.collider.gameObject.CompareTag("Player"))
@@ -155,7 +160,7 @@ public class EnemyController : BaseCharacterController
             }
             else
             {
-                var attackRay = Physics2D.Raycast(_collider.bounds.center, direction, 1.5f, _environmentMask);
+                var attackRay = Physics2D.Raycast(_collider.bounds.center, direction, _attackDistance, _environmentMask);
                 if (attackRay && attackRay.collider.gameObject.CompareTag("Player"))
                 {
                    // print(attackRay.collider.gameObject.name);
@@ -191,14 +196,15 @@ public class EnemyController : BaseCharacterController
         }
     }
 
-    private bool CheckForDeath()
+    protected bool CheckForDeath()
     {
         if (_health <= 0)
         {
             PlayerController.PlayerInstance.Kills++;
-            _animator.Play("Orc_Die");
+            _animator.SetTrigger("DieTrigger");
             Destroy(gameObject, 1f);
             _isDead = true;
+            gameObject.tag = "Untagged";
         }
         return _isDead;
     }

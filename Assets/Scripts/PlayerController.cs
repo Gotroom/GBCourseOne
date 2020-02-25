@@ -14,7 +14,7 @@ public class PlayerController : BaseCharacterController
     public static Action<bool> FlyingModeApplied;
     public static Action<bool> PowerUpApplied;
     public static Action<int, int> HealthChanged;
-    public static Action SecondaryWeaponUsed;
+    public static Action<BaseWeapon> SecondaryWeaponUsed;
 
     [HideInInspector] public bool PreventFiring = false;
     [HideInInspector] public int Health => _health;
@@ -56,7 +56,6 @@ public class PlayerController : BaseCharacterController
         {
             _health = _maxHealth;
         }
-        //_health = PlayerDataController.instance.PlayerHealth;
         _PlayerInstance = this;
         _hints.SetActive(false);
         _backwardSpeed = _speed / 2.0f;
@@ -103,7 +102,7 @@ public class PlayerController : BaseCharacterController
                 {
                     Instantiate(_secondaryWeapon, _spellPosition.position, Quaternion.identity);
                     _animator.SetTrigger("superAttackTrigger");
-                    SecondaryWeaponUsed.Invoke();
+                    SecondaryWeaponUsed.Invoke(_secondaryWeapon);
                 }
 
                 if (_mainWeapon)
@@ -322,9 +321,7 @@ public class PlayerController : BaseCharacterController
         {
             _animator.Play("Wizard_Hurt");
             _areControlsAllowed = false;
-            direction.x = (direction.x / Mathf.Abs(direction.x)) * _speed;
-            direction.y = _jumpSpeed;
-            _rigidBody.velocity = direction;
+            _rigidBody.AddForce(direction,ForceMode2D.Impulse);
         }
     }
 

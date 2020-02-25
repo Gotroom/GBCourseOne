@@ -4,9 +4,12 @@ using System;
 
 public class UIInventorySlot : MonoBehaviour
 {
+    #region Fields
+
+    public static Action<InventoryItem> ItemUsed;
+
     [HideInInspector] public InventoryItem Item;
     [HideInInspector] public int CountInSlot = 0;
-
 
     [SerializeField] private Image _image;
     [SerializeField] private Text _countText;
@@ -15,20 +18,22 @@ public class UIInventorySlot : MonoBehaviour
 
     private bool _isWielded = false;
 
+    #endregion
+
+
+    #region UnityMethods
+
     private void Awake()
     {
         Item = null;
         _button = GetComponent<Button>();
-        //UIInventory.ClearSelection = OnClearSelection;
-        UIInventory.ClearSelection = null;
+        PlayerController.SecondaryWeaponUsed = null;
     }
 
-    private void Start()
-    {
-        
-        UIInventory.ClearSelection = OnClearSelection;
-    }
+    #endregion
 
+
+    #region Methods
 
     public void AddItem(InventoryItem item, int count)
     {
@@ -41,18 +46,14 @@ public class UIInventorySlot : MonoBehaviour
         PlayerController.SecondaryWeaponUsed += OnSecondaryWeaponUsed;
     }
 
-    public void IncreaseExistingItemCount(int count)
-    {
-        CountInSlot += count;
-        if (_countText != null)
-            _countText.text = $"{CountInSlot}";
-    }
-
-    public void RemoveItem(InventoryItem item)
+    public void RemoveItem()
     {
         Item = null;
         _image.sprite = null;
         _image.enabled = false;
+        OnWield(false);
+        _countText.text = $"{0}";
+        _countText.enabled = false;
     }
 
     public void OnClick()
@@ -93,11 +94,13 @@ public class UIInventorySlot : MonoBehaviour
         OnWield(!_isWielded);
     }
 
-    private void OnSecondaryWeaponUsed()
+    private void OnSecondaryWeaponUsed(BaseWeapon weaponController)
     {
-        if (_isWielded)
+        var scroll = Item as Scroll;
+        if (_isWielded && scroll.Controller == weaponController)
         {
             CountInSlot--;
+            Item.Use();
             if (CountInSlot > 0)
             {
                 _countText.text = $"{CountInSlot}";
@@ -113,7 +116,7 @@ public class UIInventorySlot : MonoBehaviour
         }
     }
 
-    private void OnClearSelection()
+    public void ClearSelection()
     {
         OnWield(false);
     }
@@ -135,4 +138,6 @@ public class UIInventorySlot : MonoBehaviour
             }
         }
     }
+
+    #endregion
 }

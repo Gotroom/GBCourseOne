@@ -156,7 +156,7 @@ MonoBehaviour:
   ThrowingPower: 10
   _animator: {fileID: 3946148820042374623}
   _speed: 3
-  _jumpSpeed: 10
+  _jumpSpeed: 5
   _maxHealth: 2
   _environmentMask:
     serializedVersion: 2
