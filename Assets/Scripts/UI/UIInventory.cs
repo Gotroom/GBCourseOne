@@ -21,6 +21,8 @@ public class UIInventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     private void Start()
     {
         InventoryController.UpdateUI = OnUpdate;
+        DoorController.CheckKey = OnCheckKey;
+        PlayerController.SecondaryWeaponUsed = OnSecondaryWeaponUsed;
         _slots = GetComponentsInChildren<UIInventorySlot>();
         print(_slots.Length);
     }
@@ -36,7 +38,8 @@ public class UIInventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
                 {
                     foreach (var slot in _slots)
                     {
-                        slot.ClearSelection();
+                        if (_slots[i] != slot)
+                            slot.ClearSelection();
                     }
                 }
                 _slots[i].OnClick();
@@ -46,12 +49,43 @@ public class UIInventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private void OnUpdate(Dictionary<InventoryItem, int> items)
     {
+        foreach (var slot in _slots)
+        {
+            slot.RemoveItem();
+        }
+
         int itterator = 0;
         foreach (var item in items)
         {
-            _slots[itterator].RemoveItem();
             _slots[itterator].AddItem(item.Key, item.Value);
             itterator++;
+        }
+    }
+
+    private bool OnCheckKey()
+    {
+        bool keyFound = false;
+        foreach (var slot in _slots)
+        {
+            if (slot.Item != null && slot.Item.Type == InventoryItem.ItemType.Key)
+            {
+                keyFound = true;
+                slot.Use();
+            }
+        }
+        return keyFound;
+    }
+
+    private void OnSecondaryWeaponUsed()
+    {
+        foreach (var slot in _slots)
+        {
+            if (slot.Item != null && 
+                slot.Item.Type == InventoryItem.ItemType.Usable &&
+                slot.IsWielded)
+            {
+                slot.Use();
+            }
         }
     }
 

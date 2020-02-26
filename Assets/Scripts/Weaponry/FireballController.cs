@@ -43,7 +43,7 @@ public class FireballController : ProjectileWeaponController
             EnemiesDestroyed?.Invoke(DealMineDamage(true) + DealMineDamage(false));
             CreateSmoke();
             _speed = 0;
-            _animator.Play("Fireball_Impact");
+            _animator.SetTrigger("ImpactTrigger");
             _collider.enabled = false;
             Destroy(gameObject, 0.5f);
         }

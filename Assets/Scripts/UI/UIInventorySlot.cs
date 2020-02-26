@@ -11,12 +11,13 @@ public class UIInventorySlot : MonoBehaviour
     [HideInInspector] public InventoryItem Item;
     [HideInInspector] public int CountInSlot = 0;
 
+    public bool IsWielded = false;
+
     [SerializeField] private Image _image;
     [SerializeField] private Text _countText;
 
     private Button _button;
 
-    private bool _isWielded = false;
 
     #endregion
 
@@ -27,6 +28,10 @@ public class UIInventorySlot : MonoBehaviour
     {
         Item = null;
         _button = GetComponent<Button>();
+    }
+
+    private void OnDisable()
+    {
         PlayerController.SecondaryWeaponUsed = null;
     }
 
@@ -43,15 +48,15 @@ public class UIInventorySlot : MonoBehaviour
         _countText.enabled = true;
         CountInSlot = count;
         _countText.text = $"{CountInSlot}";
-        PlayerController.SecondaryWeaponUsed += OnSecondaryWeaponUsed;
+        
     }
 
     public void RemoveItem()
     {
+        ClearSelection();
         Item = null;
         _image.sprite = null;
         _image.enabled = false;
-        OnWield(false);
         _countText.text = $"{0}";
         _countText.enabled = false;
     }
@@ -91,28 +96,24 @@ public class UIInventorySlot : MonoBehaviour
 
     private void ProcessUsable()
     {
-        OnWield(!_isWielded);
+        OnWield(!IsWielded);
     }
 
-    private void OnSecondaryWeaponUsed(BaseWeapon weaponController)
+    public void Use()
     {
-        var scroll = Item as Scroll;
-        if (_isWielded && scroll.Controller == weaponController)
+        CountInSlot--;
+        Item.Use();
+        if (CountInSlot > 0)
         {
-            CountInSlot--;
-            Item.Use();
-            if (CountInSlot > 0)
-            {
-                _countText.text = $"{CountInSlot}";
-            }
-            else
-            {
-                OnWield(false);
-                Item = null;
-                _image.sprite = null;
-                _image.enabled = false;
-                _countText.enabled = false;
-            }
+            _countText.text = $"{CountInSlot}";
+        }
+        else
+        {
+            OnWield(false);
+            Item = null;
+            _image.sprite = null;
+            _image.enabled = false;
+            _countText.enabled = false;
         }
     }
 
@@ -125,7 +126,7 @@ public class UIInventorySlot : MonoBehaviour
     {
         if (Item != null)
         {
-            _isWielded = wield;
+            IsWielded = wield;
             if (wield)
             {
                 _button.OnSelect(null);

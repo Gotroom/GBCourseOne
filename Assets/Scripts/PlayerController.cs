@@ -14,7 +14,7 @@ public class PlayerController : BaseCharacterController
     public static Action<bool> FlyingModeApplied;
     public static Action<bool> PowerUpApplied;
     public static Action<int, int> HealthChanged;
-    public static Action<BaseWeapon> SecondaryWeaponUsed;
+    public static Action SecondaryWeaponUsed;
 
     [HideInInspector] public bool PreventFiring = false;
     [HideInInspector] public int Health => _health;
@@ -27,7 +27,6 @@ public class PlayerController : BaseCharacterController
     private BaseWeapon _secondaryWeapon;
     [SerializeField] private Transform _weaponPosition;
     [SerializeField] private Transform _spellPosition;
-    [SerializeField] private GameObject _hints;
     [SerializeField] private LayerMask _groundLayers;
 
     private float _obstacleDistance = 0.15f;
@@ -57,7 +56,6 @@ public class PlayerController : BaseCharacterController
             _health = _maxHealth;
         }
         _PlayerInstance = this;
-        _hints.SetActive(false);
         _backwardSpeed = _speed / 2.0f;
         _isDead = false;
         BaseWeapon.Kill = OnKill;
@@ -102,7 +100,7 @@ public class PlayerController : BaseCharacterController
                 {
                     Instantiate(_secondaryWeapon, _spellPosition.position, Quaternion.identity);
                     _animator.SetTrigger("superAttackTrigger");
-                    SecondaryWeaponUsed.Invoke(_secondaryWeapon);
+                    SecondaryWeaponUsed.Invoke();
                 }
 
                 if (_mainWeapon)
@@ -146,23 +144,6 @@ public class PlayerController : BaseCharacterController
         if (collision.gameObject.CompareTag("Enemy"))
         {
             DealDamage(1, transform.position - collision.gameObject.transform.position);
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("OpenTrigger"))
-        {
-            _hints.GetComponent<HintController>().HintMessage = "Press \"E\"";
-            _hints.SetActive(true);
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("OpenTrigger"))
-        {
-            _hints.SetActive(false);
         }
     }
 
@@ -244,14 +225,6 @@ public class PlayerController : BaseCharacterController
     protected override void Flip()
     {
         base.Flip();
-        if (_isFacingRight)
-        {
-            _hints.transform.rotation = Quaternion.Euler(0, 0, 0);
-        }
-        else
-        {
-            _hints.transform.rotation = Quaternion.Euler(0, 0, 0);
-        }
     }
 
     private bool CheckGrounded()

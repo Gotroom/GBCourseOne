@@ -10,10 +10,8 @@ public class LevelGenerator : MonoBehaviour
     private const float COLLIDER_OFFSET = -0.125f;
     private const float PICKUPS_SPAWN_OFFSET = 1.0f;
 
-    [SerializeField] private GameObject _platformPrefab;
-    [SerializeField] private BoxCollider2D _platformBoxCollider;
+    [SerializeField] private GameObject[] _platformPrefabs;
     [SerializeField] private Transform _startingPoint;
-    [SerializeField] private GameObject _levelObject;
     [SerializeField] private GameObject[] _objectsOnPlatforms;
 
     [Header("Min and Max Position offsets")]
@@ -31,17 +29,15 @@ public class LevelGenerator : MonoBehaviour
     [SerializeField] private int _maxLength = 10;
 
     private Vector3 _lastSpawnPoint;
-    private SpriteRenderer _render;
-    private int _platformPiecesLength;
+
+    private int _selectedPlatform;
 
     #endregion
 
     #region UnityMethods
 
     private void Awake()
-    {
-        _render = _platformPrefab.GetComponent<SpriteRenderer>();
-        _platformBoxCollider = _platformPrefab.GetComponent<BoxCollider2D>();
+    {     
         _lastSpawnPoint = _startingPoint.Find("EndPosition").position;
         Spawn(_lastSpawnPoint);
     }
@@ -71,43 +67,19 @@ public class LevelGenerator : MonoBehaviour
     {
         PreparePlatform();
 
-        ResizeCollider();
-
-        MoveEndPoint();
-
         return PlaceThePlatform(position);
     }
 
     private void PreparePlatform()
     {
-        _platformPiecesLength = Random.Range(_minLength, _maxLength);
-        Vector2 rendererSize = _render.size;
-        rendererSize.x = _platformPiecesLength;
-        _render.size = rendererSize;
-    }
-
-    private void ResizeCollider()
-    {
-        Vector2 colliderSize = _platformBoxCollider.size;
-        Vector2 colliderOffset = _platformBoxCollider.offset;
-        colliderOffset.y = COLLIDER_OFFSET;
-        colliderSize.x = _platformPiecesLength;
-        _platformBoxCollider.offset = colliderOffset;
-        _platformBoxCollider.size = colliderSize;
-    }
-
-    private void MoveEndPoint()
-    {
-        Vector2 platformPosition = _platformPrefab.transform.position;
-        platformPosition += _render.size / 2;
-        _platformPrefab.transform.Find("EndPosition").position = platformPosition;
+        _selectedPlatform = Random.Range(0, _platformPrefabs.Length - 1);
     }
 
     private Transform PlaceThePlatform(Vector3 position)
     {
         position.x += Random.Range(_xMinOffset, _xMaxOffset);
         position.y += Random.Range(_yMinOffset, _yMaxOffset);
-        Transform result = Instantiate(_platformPrefab, position, Quaternion.identity).transform;
+        Transform result = Instantiate(_platformPrefabs[_selectedPlatform], position, Quaternion.identity).transform;
         return result;
     }
 
@@ -132,8 +104,11 @@ public class LevelGenerator : MonoBehaviour
 
     private void SpawnRandomObject(int type)
     {
+        if (_objectsOnPlatforms[type] == null)
+            return;
         var spawnPoint = _lastSpawnPoint;
         spawnPoint.x -= PICKUPS_SPAWN_OFFSET;
+        spawnPoint.y += PICKUPS_SPAWN_OFFSET;
         Instantiate(_objectsOnPlatforms[type], spawnPoint, Quaternion.identity);
     }
 
