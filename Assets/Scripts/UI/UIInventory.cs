@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class UIInventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
+    #region Fields
+
     private UIInventorySlot[] _slots;
 
     private KeyCode[] _keyCodes =
@@ -18,16 +20,40 @@ public class UIInventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         KeyCode.Alpha8
     };
 
-    private void Start()
+    #endregion
+
+
+    #region UnityMethods
+
+    private void Awake()
     {
         InventoryController.UpdateUI = OnUpdate;
         DoorController.CheckKey = OnCheckKey;
         PlayerController.SecondaryWeaponUsed = OnSecondaryWeaponUsed;
-        _slots = GetComponentsInChildren<UIInventorySlot>();
-        print(_slots.Length);
     }
 
+    private void Start()
+    {
+        _slots = GetComponentsInChildren<UIInventorySlot>();
+        var items = new Dictionary<InventoryItem, int>();
+        if (PlayerDataController.instance != null)
+        {
+            foreach (var item in PlayerDataController.instance.ItemsList)
+            {
+                items.Add(item.Key, item.Value);
+            }
+        }
+        OnUpdate(items);
+    }
 
+    private void OnDisable()
+    {
+        InventoryController.UpdateUI = null;
+        DoorController.CheckKey = null;
+        PlayerController.SecondaryWeaponUsed = null;
+    }
+
+#if UNITY_STANDALONE_WIN
     private void Update()
     {
         for(int i = 0; i < _keyCodes.Length; i++)
@@ -46,6 +72,11 @@ public class UIInventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
             }
         }
     }
+#endif
+
+    #endregion
+
+    #region Methods
 
     private void OnUpdate(Dictionary<InventoryItem, int> items)
     {
@@ -80,7 +111,7 @@ public class UIInventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         foreach (var slot in _slots)
         {
-            if (slot.Item != null && 
+            if (slot.Item != null &&
                 slot.Item.Type == InventoryItem.ItemType.Usable &&
                 slot.IsWielded)
             {
@@ -89,13 +120,24 @@ public class UIInventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         }
     }
 
+    #endregion
+
+
+    #region IPointerExitHandler
+
     public void OnPointerEnter(PointerEventData eventData)
     {
+#if UNITY_STANDALONE_WIN
         PlayerController.PlayerInstance.PreventFiring = true;
+#endif
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+#if UNITY_STANDALONE_WIN
         PlayerController.PlayerInstance.PreventFiring = false;
+#endif
     }
+
+    #endregion
 }

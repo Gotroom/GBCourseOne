@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 
+
 [CreateAssetMenu(fileName = "New Item", menuName ="Inventory/Item")]
 public class InventoryItem : ScriptableObject
 {

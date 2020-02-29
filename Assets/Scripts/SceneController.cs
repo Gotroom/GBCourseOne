@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
 using System;
@@ -12,6 +11,7 @@ public class SceneController : MonoBehaviour
 
     public static Action<bool> LoadingScene;
     public static Action StorePlayerData;
+    public static int SceneIndex = 0;
 
     private static List<InventoryItem> _inventoryItems;
     private static int _playerHealth;
@@ -26,7 +26,9 @@ public class SceneController : MonoBehaviour
     private void Start()
     {
         WarpController.WarpToZone = OnWarpToZone;
+        DoorController.GoToScene = OnGoToScene;
         SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneIndex = SceneManager.GetActiveScene().buildIndex;
     }
 
     #endregion
@@ -51,6 +53,12 @@ public class SceneController : MonoBehaviour
         StartCoroutine(LoadLeveAsync(true));
     }
 
+    private void OnGoToScene(int scene)
+    {
+        _sceneToLoadIndex = scene;
+        StartCoroutine(LoadLeveAsyncByIndex(true));
+    }
+
     public Scene GetCurrentScene()
     {
         return SceneManager.GetActiveScene();
@@ -59,6 +67,7 @@ public class SceneController : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneIndex = SceneManager.GetActiveScene().buildIndex;
         Time.timeScale = 1;
     }
 

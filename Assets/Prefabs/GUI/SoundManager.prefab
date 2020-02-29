@@ -47,10 +47,36 @@ MonoBehaviour:
   _sounds:
   - Source: {fileID: 0}
     Clip: {fileID: 8300000, guid: 46e5fae21fcbb384a90db9531ddf1e68, type: 3}
-    Name: MineExplode
+    Name: Explode
+    Volume: 0.2
+    Pitch: 1
+  - Source: {fileID: 0}
+    Clip: {fileID: 8300000, guid: 67588fa6e71a61a408387b512d7b38b8, type: 3}
+    Name: CastSpell
+    Volume: 0.2
+    Pitch: 1
+  - Source: {fileID: 0}
+    Clip: {fileID: 8300000, guid: 2ea65a08e28dbee4ab5b53b5f3ddd774, type: 3}
+    Name: FireballImpact
+    Volume: 0.2
+    Pitch: 1
+  - Source: {fileID: 0}
+    Clip: {fileID: 8300000, guid: f61c570b341ba4743a19c7eac1d00c38, type: 3}
+    Name: FireballCast
+    Volume: 0.2
+    Pitch: 1
+  - Source: {fileID: 0}
+    Clip: {fileID: 8300000, guid: 9979784a04d0b40458c2f415a5f50c83, type: 3}
+    Name: DragonRoar
     Volume: 0.2
     Pitch: 1
   _sourse: {fileID: 1156371381741629697}
+  _backgroundMusic:
+    Source: {fileID: 0}
+    Clip: {fileID: 0}
+    Name: 
+    Volume: 0
+    Pitch: 0
 --- !u!82 &1156371381741629697
 AudioSource:
   m_ObjectHideFlags: 0

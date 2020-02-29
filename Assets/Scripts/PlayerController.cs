@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityStandardAssets.CrossPlatformInput;
 using System;
 using System.Collections.Generic;
 
@@ -24,10 +25,11 @@ public class PlayerController : BaseCharacterController
 
     [SerializeField] private InventoryController _inventory;
     [SerializeField] private BaseWeapon _mainWeapon;
-    private BaseWeapon _secondaryWeapon;
     [SerializeField] private Transform _weaponPosition;
     [SerializeField] private Transform _spellPosition;
     [SerializeField] private LayerMask _groundLayers;
+
+    public BaseWeapon _secondaryWeapon;
 
     private float _obstacleDistance = 0.15f;
     private float _fallMiltiplier = 2.5f;
@@ -71,14 +73,14 @@ public class PlayerController : BaseCharacterController
     {
         if (!_isPaused && !_isDead)
         {
-            _horizontalMove = Input.GetAxisRaw("Horizontal");
-
+            _horizontalMove = CrossPlatformInputManager.GetAxis("Horizontal");
+            Debug.Log(_horizontalMove);
             _isAirborne = !CheckGrounded();
 
             if (!_isAirborne)
                 _areControlsAllowed = true;
 
-            if (Input.GetButtonDown("Jump") && (!_isAirborne || _isFlying))
+            if (CrossPlatformInputManager.GetButtonDown("Jump") && (!_isAirborne || _isFlying))
             {
                 _isJumping = true;
             }
@@ -89,20 +91,20 @@ public class PlayerController : BaseCharacterController
 
             if (!PreventFiring)
             {
-                if (Input.GetButtonDown("Fire1"))
+                if (CrossPlatformInputManager.GetButtonDown("Fire1"))
                 {
-                    Instantiate(_mainWeapon, _weaponPosition.position, _weaponPosition.rotation);
-                    //FindObjectOfType<SoundManager>().PlaySoundByName("GunShot");
-                    _animator.SetTrigger("attackTrigger");
+                    if (_secondaryWeapon == null)
+                    {
+                        Instantiate(_mainWeapon, _weaponPosition.position, _weaponPosition.rotation);
+                        _animator.SetTrigger("attackTrigger");
+                    }
+                    else
+                    {
+                        Instantiate(_secondaryWeapon, _spellPosition.position, Quaternion.identity);
+                        _animator.SetTrigger("superAttackTrigger");
+                        SecondaryWeaponUsed.Invoke();
+                    }
                 }
-
-                if (Input.GetButtonDown("Fire2") && _secondaryWeapon != null)
-                {
-                    Instantiate(_secondaryWeapon, _spellPosition.position, Quaternion.identity);
-                    _animator.SetTrigger("superAttackTrigger");
-                    SecondaryWeaponUsed.Invoke();
-                }
-
                 if (_mainWeapon)
                 {
                     _mainWeapon.Speed = _isFacingRight ? BulletVelocity : BulletVelocity * -1;
@@ -147,9 +149,9 @@ public class PlayerController : BaseCharacterController
         }
     }
 
-    #endregion
+#endregion
 
-    #region Methods
+#region Methods
 
     private void OnKill()
     {
@@ -249,9 +251,21 @@ public class PlayerController : BaseCharacterController
 
     private void ProcessMousePosition()
     {
-        Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 shootingDirection = worldMousePos - transform.position;
-        shootingDirection.Normalize();
+        Vector3 shootingDirection = Vector3.zero;
+#if UNITY_STANDALONE_WIN
+            Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            shootingDirection = worldMousePos - transform.position;
+            shootingDirection.Normalize();
+#endif
+
+#if UNITY_ANDROID
+        if (Input.touches.Length > 0)
+        {
+            shootingDirection = Camera.main.ScreenToWorldPoint(Input.touches[Input.touches.Length - 1].position) - transform.position;
+            shootingDirection.Normalize();
+        }
+#endif
 
         if (shootingDirection.x <= -MAX_AXIS_TO_FLIP && _isFacingRight)
         {
@@ -271,7 +285,7 @@ public class PlayerController : BaseCharacterController
         {
             _rigidBody.velocity += Vector2.up * Physics2D.gravity.y * (_fallMiltiplier - 1) * Time.deltaTime;
         }
-        else if (_rigidBody.velocity.y > 0 && !Input.GetButton("Jump"))
+        else if (_rigidBody.velocity.y > 0 && !CrossPlatformInputManager.GetButton("Jump"))
         {
             _rigidBody.velocity += Vector2.up * Physics2D.gravity.y * (_lowJumpMultiplier) * Time.deltaTime;
         }
@@ -298,5 +312,5 @@ public class PlayerController : BaseCharacterController
         }
     }
 
-    #endregion
+#endregion
 }

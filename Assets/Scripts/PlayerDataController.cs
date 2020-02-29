@@ -1,13 +1,20 @@
 ﻿using UnityEngine;
-using System;
 using System.Collections.Generic;
+
 
 public class PlayerDataController : MonoBehaviour
 {
+    #region Fields
+
     public static PlayerDataController instance;
 
     public Dictionary<InventoryItem, int> ItemsList;
     public int PlayerHealth;
+
+    #endregion
+
+
+    #region UnityMethods
 
     private void Awake()
     {
@@ -28,6 +35,11 @@ public class PlayerDataController : MonoBehaviour
         SceneController.StorePlayerData = OnStore;
     }
 
+    #endregion
+
+
+    #region Methods
+
     private void OnStore()
     {
         ItemsList.Clear();
@@ -37,5 +49,5 @@ public class PlayerDataController : MonoBehaviour
         PlayerHealth = player.Health;
         print(ItemsList + " " + PlayerHealth);
     }
-
+    #endregion
 }

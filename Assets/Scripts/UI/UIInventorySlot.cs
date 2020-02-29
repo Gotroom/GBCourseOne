@@ -18,21 +18,15 @@ public class UIInventorySlot : MonoBehaviour
 
     private Button _button;
 
-
     #endregion
 
 
     #region UnityMethods
 
-    private void Awake()
+    private void Start()
     {
         Item = null;
         _button = GetComponent<Button>();
-    }
-
-    private void OnDisable()
-    {
-        PlayerController.SecondaryWeaponUsed = null;
     }
 
     #endregion
@@ -129,12 +123,14 @@ public class UIInventorySlot : MonoBehaviour
             IsWielded = wield;
             if (wield)
             {
-                _button.OnSelect(null);
+                if (_button != null)
+                    _button?.OnSelect(null);
                 Item.Wield();
             }
             else
             {
-                _button.OnDeselect(null);
+                if (_button != null)
+                    _button?.OnDeselect(null);
                 Item.Unwield();
             }
         }

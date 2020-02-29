@@ -1,11 +1,16 @@
 ﻿using UnityEngine;
-using System.Collections;
+
 
 [CreateAssetMenu(fileName = "Scroll", menuName = "Inventory/Scroll")]
 public class Scroll : InventoryItem
 {
+    #region Fields
 
     public ProjectileWeaponController Controller;
+
+    #endregion
+
+    #region Methods
 
     public override bool Wield()
     {
@@ -18,4 +23,6 @@ public class Scroll : InventoryItem
         WieldWeapon.Invoke(null);
         return true;
     }
+
+    #endregion
 }

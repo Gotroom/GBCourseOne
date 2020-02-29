@@ -18,6 +18,7 @@ public class MainCameraController : MonoBehaviour
 
     #endregion
 
+
     #region UnityMethods
 
     private void Start()
@@ -37,7 +38,6 @@ public class MainCameraController : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         if (_follow)

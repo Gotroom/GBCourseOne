@@ -206,3 +206,7 @@ MonoBehaviour:
   _speed: 10
   _defaultDamage: 1
   _damageMultiplier: 1
+  _startSound: {fileID: 8300000, guid: 67588fa6e71a61a408387b512d7b38b8, type: 3}
+  _animator: {fileID: 0}
+  _isUsedByEnemy: 0
+  _isAnimated: 0

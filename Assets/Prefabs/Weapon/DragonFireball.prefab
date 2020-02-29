@@ -189,6 +189,7 @@ MonoBehaviour:
   _speed: 10
   _defaultDamage: 1
   _damageMultiplier: 1
+  _startSound: {fileID: 8300000, guid: f61c570b341ba4743a19c7eac1d00c38, type: 3}
   _animator: {fileID: 105631596969572187}
   _isUsedByEnemy: 1
   _isAnimated: 1
@@ -197,6 +198,7 @@ MonoBehaviour:
   _layers:
     serializedVersion: 2
     m_Bits: 48896
+  _impactSound: {fileID: 8300000, guid: 46e5fae21fcbb384a90db9531ddf1e68, type: 3}
   _destructionRange: 1
   _damageRange: 3
   _maxDamage: 2

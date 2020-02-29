@@ -1,22 +1,32 @@
 ﻿using UnityEngine;
-using System.Collections;
+
 
 public class LevelOneBossController : RangedEnemyController
 {
+    #region Fields
+
+    public bool PlayerNoticed { set { _playerNoticed = value; } }
 
     [SerializeField] private Transform[] _movePoints;
+    [SerializeField] private AudioClip _triggeredSound;
 
     private Transform _nextPoint;
     private SpriteRenderer _spriteRenderer;
 
     private bool _isRestingOnPlatform = false;
     private bool _isMovingToNewPoint = false;
-    private bool _playerNoticed = true;
+    private bool _playerNoticed = false;
     private float _restingTime = 1.5f;
+
+    #endregion
+
+
+    #region UnityMethods
 
     protected override void Start()
     {
         base.Start();
+        TriggerController.Triggered += OnTriggeredBossFight;
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
@@ -35,7 +45,6 @@ public class LevelOneBossController : RangedEnemyController
     // Use this for initialization
     protected override void FixedUpdate()
     {
-        print(_isDead);
         if (!_isDead)
         {
             if (!_isRestingOnPlatform && !_isMovingToNewPoint)
@@ -52,6 +61,11 @@ public class LevelOneBossController : RangedEnemyController
             }
         }
     }
+
+    #endregion
+
+
+    #region Methods
 
     private void GetNewPoint()
     {
@@ -86,7 +100,7 @@ public class LevelOneBossController : RangedEnemyController
 
             }
 
-            if (!_isAttackOnCooldown && _playerNoticed)
+            if (!_isAttackOnCooldown && _playerNoticed && !_isDead)
             {
                 AttackPlayer();
             }
@@ -118,6 +132,12 @@ public class LevelOneBossController : RangedEnemyController
         _isRestingOnPlatform = false;
     }
 
+    private void OnTriggeredBossFight()
+    {
+        _soundManager.PlaySound(_triggeredSound);
+        _playerNoticed = true;
+    }
+
     protected override void AttackPlayer()
     {
         _isAttackOnCooldown = true;
@@ -131,4 +151,5 @@ public class LevelOneBossController : RangedEnemyController
         Instantiate(_weapon, _weaponPosition.position, _weaponPosition.rotation);
     }
 
+    #endregion
 }

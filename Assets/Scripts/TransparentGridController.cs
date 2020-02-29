@@ -11,7 +11,7 @@ public class TransparentGridController : MonoBehaviour
     private const float FADE_TRANSPARENCY = 0.05f;
     private const float DELAY = 0.05f;
 
-    [SerializeField] private Tilemap _tilemap;
+    private bool _isMakingTransparent = false;
 
     #endregion
 
@@ -21,6 +21,9 @@ public class TransparentGridController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
+            if (!_isMakingTransparent)
+                StopAllCoroutines();
+            _isMakingTransparent = true;
             StartCoroutine(MakeTransparent());
         }
     }
@@ -29,6 +32,9 @@ public class TransparentGridController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
+            if (_isMakingTransparent)
+                StopAllCoroutines();
+            _isMakingTransparent = false;
             StartCoroutine(MakeSolid());
         }
     }

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityStandardAssets.CrossPlatformInput;
 
 
 public class ProjectileWeaponController : BaseWeapon
@@ -14,6 +15,7 @@ public class ProjectileWeaponController : BaseWeapon
 
     #endregion
 
+
     #region UnityMethods
 
     protected override void Start()
@@ -21,12 +23,24 @@ public class ProjectileWeaponController : BaseWeapon
         base.Start();
         if (!_isUsedByEnemy)
         {
+#if UNITY_STANDALONE_WIN
             Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
             _shootingDirection = worldMousePos - transform.position;
             _shootingDirection.Normalize();
             var look = Mathf.Atan2(_shootingDirection.y, _shootingDirection.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0, 0, look);
+#endif
+#if UNITY_ANDROID
+            if (Input.touches.Length > 0)
+            {
+                _shootingDirection = Camera.main.ScreenToWorldPoint(Input.touches[Input.touches.Length - 1].position) - transform.position;
+
+                _shootingDirection.Normalize();
+                var look = Mathf.Atan2(_shootingDirection.y, _shootingDirection.x) * Mathf.Rad2Deg;
+                transform.rotation = Quaternion.Euler(0, 0, look);
+            }
+#endif
         }
     }
 
@@ -56,5 +70,5 @@ public class ProjectileWeaponController : BaseWeapon
         }
     }
 
-    #endregion
+#endregion
 }

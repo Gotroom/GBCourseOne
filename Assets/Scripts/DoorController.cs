@@ -6,13 +6,16 @@ public class DoorController : MonoBehaviour, IOpenable
 {
     #region Fields
 
-    private const string USE_HINT = "Press \"E\"";
+    private const string USE_HINT = "Press \"Use\"";
     private const string KEY_NEEDED_HINT = "Door is closed. Grab the key!";
     private const string OPENNED_HINT = "Door is opened. Press \"Use\" button to enter next zone!";
 
     public static Action<string> ShowHint;
     public static Action HideHint;
     public static Func<bool> CheckKey;
+    public static Action<int> GoToScene;
+
+    [SerializeField] private int _enteringScene;
 
     private bool _isStepped = false;
     private bool _isDoorOpened = false;
@@ -27,7 +30,7 @@ public class DoorController : MonoBehaviour, IOpenable
         {
             if (_isDoorOpened)
             {
-                Close();
+                GoToScene.Invoke(_enteringScene);
             }
             else
             {

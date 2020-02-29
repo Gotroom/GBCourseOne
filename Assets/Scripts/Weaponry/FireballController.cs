@@ -4,10 +4,11 @@ public class FireballController : ProjectileWeaponController
 {
     #region Fields
 
-    private const string EXPLODE_SOUND_NAME = "MineExplode";
+    private const float SMOKE_OFFSET = 0.5f;
 
     [SerializeField] private GameObject _smokeAfterExplosion;
     [SerializeField] private LayerMask _layers;
+    [SerializeField] private AudioClip _impactSound;
     [SerializeField] private float _destructionRange = 3.0f;
     [SerializeField] private float _damageRange = 15.0f;
     [SerializeField] private int _maxDamage = 3;
@@ -56,7 +57,7 @@ public class FireballController : ProjectileWeaponController
 
     private void PlayExplodeSound()
     {
-        FindObjectOfType<SoundManager>().PlaySoundByName(EXPLODE_SOUND_NAME);
+        _soundManager.PlaySound(_impactSound);
     }
 
     private int DealMineDamage(bool isEpicenter)
@@ -101,7 +102,9 @@ public class FireballController : ProjectileWeaponController
 
     private void CreateSmoke()
     {
-        Instantiate(_smokeAfterExplosion, _collider.bounds.min, Quaternion.identity);
+        var position = transform.position;
+        position.y += SMOKE_OFFSET;
+        Instantiate(_smokeAfterExplosion, position, Quaternion.identity);
     }
 
     #endregion

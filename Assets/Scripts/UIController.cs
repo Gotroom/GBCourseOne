@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityStandardAssets.CrossPlatformInput;
 using TMPro;
 using System;
 
@@ -8,12 +9,12 @@ public class UIController : MonoBehaviour
 {
     #region Fields
 
-    private const string MAIN_MENU_SCENE_NAME = "MainMenu";
+    private const int MAIN_MENU_SCENE_INDEX = 0;
     public static Action<bool> Paused;
 
-    [SerializeField] private GameObject _optionsCanvas;
-    [SerializeField] private GameObject _mainCanvas;
-    [SerializeField] private GameObject _loadCanvas;
+    [SerializeField] private Canvas _optionsCanvas;
+    [SerializeField] private Canvas _mainCanvas;
+    [SerializeField] private Canvas _loadCanvas;
     [SerializeField] private SceneController _sceneController;
     [SerializeField] private bool _inGame;
 
@@ -30,31 +31,23 @@ public class UIController : MonoBehaviour
         _optionsController = _optionsCanvas.GetComponent<OptionsController>();
         _mainMenuController = _mainCanvas.GetComponent<MainMenuController>();
         SceneController.LoadingScene = OnLoading;
-        if (_sceneController.GetCurrentScene().name == MAIN_MENU_SCENE_NAME)
-        {
-            _inGame = false;
-        }
-        else
-        {
-            _inGame = true;
-        }
     }
 
     private void Update()
     {
-        _inGame = _sceneController.GetCurrentScene().name != MAIN_MENU_SCENE_NAME; // костыль?
-        if (Input.GetButtonDown("Cancel") && _inGame)
+        _inGame = SceneController.SceneIndex != MAIN_MENU_SCENE_INDEX;
+        if (CrossPlatformInputManager.GetButtonDown("Cancel") && _inGame)
         {
             if (_isGamePaused)
             {
                 UnPause();
-                _mainCanvas.SetActive(false);
-                _optionsCanvas.SetActive(false);
+                _mainCanvas.enabled = false;
+                _optionsCanvas.enabled = false;
             }
             else
             {
                 Pause();
-                _mainCanvas.SetActive(true);
+                _mainCanvas.enabled = true;
             }
         }
     }
@@ -82,27 +75,27 @@ public class UIController : MonoBehaviour
         if (flag)
         {
             Pause();
-            _loadCanvas.SetActive(true);
-            _mainCanvas.SetActive(false);
-            _optionsCanvas.SetActive(false);
+            _loadCanvas.enabled = true;
+            _mainCanvas.enabled = false;
+            _optionsCanvas.enabled = false;
         }
         else
         {
-            _loadCanvas.SetActive(false);
+            _loadCanvas.enabled = false;
             UnPause();
         }
     }
 
     public void OpenOptions()
     {
-        _mainCanvas.SetActive(false);
-        _optionsCanvas.SetActive(true);
+        _mainCanvas.enabled = false;
+        _optionsCanvas.enabled = true;
     }
 
     public void CloseOptions()
     {
-        _optionsCanvas.SetActive(false);
-        _mainCanvas.SetActive(true);
+        _optionsCanvas.enabled = false;
+        _mainCanvas.enabled = true;
     }
 
     #endregion

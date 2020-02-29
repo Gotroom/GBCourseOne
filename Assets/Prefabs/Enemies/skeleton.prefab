@@ -187,13 +187,16 @@ MonoBehaviour:
   _environmentMask:
     serializedVersion: 2
     m_Bits: 768
+  _drop: {fileID: 0}
   _fieldOfView: 15
   _attackDistance: 7
-  _attackCooldown: 1.2
+  _attackCooldown: 1.5
   _stayingStill: 0
   _weapon: {fileID: 4098633771345966082, guid: 3be70d018da5c8d4fa34bac0f1596a28, type: 3}
   _weaponSprite: {fileID: 972901656}
   _weaponPosition: {fileID: 1045289221022272388}
+  _attackSound: {fileID: 8300000, guid: d6450b6370b65844d9a17a264109eab2, type: 3}
+  _projectileCreateDelay: 0.75
 --- !u!95 &1045289220657753216
 Animator:
   serializedVersion: 3

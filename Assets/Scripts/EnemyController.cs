@@ -8,6 +8,7 @@ public class EnemyController : BaseCharacterController
     protected const float VIEWING_ANGLE = 45;
 
     [SerializeField] protected LayerMask _environmentMask;
+    [SerializeField] protected GameObject _drop;
 
     [SerializeField] protected float _fieldOfView = 5f;
     [SerializeField] protected float _attackDistance = 1f;
@@ -16,6 +17,8 @@ public class EnemyController : BaseCharacterController
 
     protected Vector2 _rightCliff;
     protected Vector2 _leftCliff;
+    protected SoundManager _soundManager;
+
 
     protected float _playerSpottedTimeout = 3.0f;
     protected float _initX;
@@ -32,6 +35,7 @@ public class EnemyController : BaseCharacterController
     protected override void Start()
     {
         base.Start();
+        _soundManager = FindObjectOfType<SoundManager>();
         _health = _maxHealth;
         _leftCliff = new Vector2(-1, -1f);
         _rightCliff = new Vector2(1, -1f);
@@ -201,12 +205,19 @@ public class EnemyController : BaseCharacterController
         if (_health <= 0)
         {
             PlayerController.PlayerInstance.Kills++;
+            DropItems();
             _animator.SetTrigger("DieTrigger");
             Destroy(gameObject, 1f);
             _isDead = true;
             gameObject.tag = "Untagged";
         }
         return _isDead;
+    }
+
+    protected void DropItems()
+    {
+        if (_drop != null)
+            Instantiate(_drop, transform.position, transform.rotation);
     }
 
     protected override void Flip()

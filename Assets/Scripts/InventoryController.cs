@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 
@@ -37,7 +36,6 @@ public class InventoryController : MonoBehaviour
         BasePickupController.PickingUp = OnPickUp;
         InventoryItem.Consumed = OnConsumed;
         InventoryItem.Used = OnUsed;
-        FillLoaded();
     }
 
     #endregion
@@ -115,7 +113,6 @@ public class InventoryController : MonoBehaviour
             UpdateUI?.Invoke(Items);
         }
     }
-
 
     #endregion
 }

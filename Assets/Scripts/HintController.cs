@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using TMPro;
 
+
 public class HintController : MonoBehaviour
 {
     #region Fields

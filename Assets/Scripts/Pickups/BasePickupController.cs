@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 
+
 public class BasePickupController : MonoBehaviour
 {
     #region Fields
