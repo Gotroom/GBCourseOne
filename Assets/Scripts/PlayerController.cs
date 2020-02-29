@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using UnityStandardAssets.CrossPlatformInput;
 using System;
+using System.Collections.Generic;
 
 
 public class PlayerController : BaseCharacterController
@@ -8,26 +10,28 @@ public class PlayerController : BaseCharacterController
 
     private const float WALLS_CHECK_OFFSET = 0.3f;
     private const float MAX_AXIS_TO_FLIP = 0.1f;
+    private const float RESPAWN_AXIS_Y_OFFSET = 30.0f;
+    private const float RESPAWN_AXIS_X_OFFSET = 5.0f;
 
     public static PlayerController PlayerInstance => _PlayerInstance;
     public static Action<bool> FlyingModeApplied;
     public static Action<bool> PowerUpApplied;
     public static Action<int, int> HealthChanged;
-    public static Func<ConsumableWeapon.Types, bool> Consume;
+    public static Action SecondaryWeaponUsed;
 
+    [HideInInspector] public bool PreventFiring = false;
     [HideInInspector] public int Health => _health;
     [HideInInspector] public int Kills { get { return _killCounter; } set { _killCounter = value; } }
     
     private static PlayerController _PlayerInstance;
 
     [SerializeField] private InventoryController _inventory;
-    [SerializeField] private BulletController _bullet;
-    [SerializeField] private MineController _mine;
-    [SerializeField] private Transform _weaponTransform;
-    [SerializeField] private GameObject _hints;
-    //[SerializeField] private GameObject _gun;
-    //[SerializeField] private SpriteRenderer _gunSprite;
+    [SerializeField] private BaseWeapon _mainWeapon;
+    [SerializeField] private Transform _weaponPosition;
+    [SerializeField] private Transform _spellPosition;
     [SerializeField] private LayerMask _groundLayers;
+
+    public BaseWeapon _secondaryWeapon;
 
     private float _obstacleDistance = 0.15f;
     private float _fallMiltiplier = 2.5f;
@@ -46,30 +50,40 @@ public class PlayerController : BaseCharacterController
     override protected void Start()
     {
         base.Start();
-        _health = _maxHealth;
+        var savedData = PlayerDataController.instance;
+        if (savedData != null)
+        {
+            _health = savedData.PlayerHealth;
+        }
+        else
+        {
+            _health = _maxHealth;
+        }
         _PlayerInstance = this;
-        _hints.SetActive(false);
         _backwardSpeed = _speed / 2.0f;
         _isDead = false;
         BaseWeapon.Kill = OnKill;
         HealthKitController.Heal = OnHeal;
         PowerUpController.ApplyPowerUp = OnPowerUp;
         FlyModeController.ApplyFlyingMode = OnFlyingMode;
+        InventoryItem.WieldWeapon = OnWieldWeapon;
         UIController.Paused = OnPaused;
+        RespawnController.FallDown = OnFallDown;
+        _secondaryWeapon = null;
     }
 
     void Update()
     {
         if (!_isPaused && !_isDead)
         {
-            _horizontalMove = Input.GetAxisRaw("Horizontal");
-
+            _horizontalMove = CrossPlatformInputManager.GetAxis("Horizontal");
+            Debug.Log(_horizontalMove);
             _isAirborne = !CheckGrounded();
 
             if (!_isAirborne)
                 _areControlsAllowed = true;
 
-            if (Input.GetButtonDown("Jump") && (!_isAirborne || _isFlying))
+            if (CrossPlatformInputManager.GetButtonDown("Jump") && (!_isAirborne || _isFlying))
             {
                 _isJumping = true;
             }
@@ -78,24 +92,31 @@ public class PlayerController : BaseCharacterController
 
             ProcessMousePosition();
 
-            if (Input.GetButtonDown("Fire1"))
+            if (!PreventFiring)
             {
-                Instantiate(_bullet, _weaponTransform.position, _weaponTransform.rotation);
-                //FindObjectOfType<SoundManager>().PlaySoundByName("GunShot");
-                _animator.SetTrigger("attackTrigger");
-            }
-
-            if (Input.GetButtonDown("Fire2") && Consume.Invoke(ConsumableWeapon.Types.Mine))
-                Instantiate(_mine, _weaponTransform.position, Quaternion.identity);
-
-            if (_bullet)
-            {
-                _bullet.Speed = _isFacingRight ? BulletVelocity : BulletVelocity * -1;
-                _bullet.DamageMultiplier = _isPoweredUp ? 2 : 1;
-            }
-            if (_mine)
-            {
-                _mine.Speed = _isFacingRight ? ThrowingPower : ThrowingPower * -1;
+                if (CrossPlatformInputManager.GetButtonDown("Fire1"))
+                {
+                    if (_secondaryWeapon == null)
+                    {
+                        Instantiate(_mainWeapon, _weaponPosition.position, _weaponPosition.rotation);
+                        _animator.SetTrigger("attackTrigger");
+                    }
+                    else
+                    {
+                        Instantiate(_secondaryWeapon, _spellPosition.position, Quaternion.identity);
+                        _animator.SetTrigger("superAttackTrigger");
+                        SecondaryWeaponUsed.Invoke();
+                    }
+                }
+                if (_mainWeapon)
+                {
+                    _mainWeapon.Speed = _isFacingRight ? BulletVelocity : BulletVelocity * -1;
+                    _mainWeapon.DamageMultiplier = _isPoweredUp ? 2 : 1;
+                }
+                if (_secondaryWeapon)
+                {
+                    _secondaryWeapon.Speed = _isFacingRight ? BulletVelocity : BulletVelocity * -1;
+                }
             }
         }
     }
@@ -131,35 +152,18 @@ public class PlayerController : BaseCharacterController
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("OpenTrigger"))
-        {
-            _hints.GetComponent<HintController>().HintMessage = "Press \"E\"";
-            _hints.SetActive(true);
-        }
-    }
+#endregion
 
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("OpenTrigger"))
-        {
-            _hints.SetActive(false);
-        }
-    }
-
-    #endregion
-
-    #region Methods
+#region Methods
 
     private void OnKill()
     {
         _health = 0;
+        HealthChanged?.Invoke(_health, _maxHealth);
         _speed = 0;
         _jumpSpeed = 0;
         _isDead = true;
         _animator.SetBool("isDead", true);
-       // _gun.SetActive(false);
         _animator.Play("Wizard_Die");
     }
 
@@ -189,6 +193,11 @@ public class PlayerController : BaseCharacterController
         return false;
     }
 
+    private void OnWieldWeapon(BaseWeapon weapon)
+    {
+        _secondaryWeapon = weapon;
+    }
+
     private void PowerUpExpired()
     {
         PowerUpApplied.Invoke(false);
@@ -207,6 +216,15 @@ public class PlayerController : BaseCharacterController
         return false;
     }
 
+    private void OnFallDown()
+    {
+        var position = transform.position;
+        position.y += RESPAWN_AXIS_Y_OFFSET;
+        position.x -= RESPAWN_AXIS_X_OFFSET;
+        transform.position = position;
+        _rigidBody.velocity = Vector2.zero;
+    }
+
     private void FlyingExpired()
     {
         FlyingModeApplied.Invoke(false);
@@ -221,14 +239,6 @@ public class PlayerController : BaseCharacterController
     protected override void Flip()
     {
         base.Flip();
-        if (_isFacingRight)
-        {
-            _hints.transform.rotation = Quaternion.Euler(0, 0, 0);
-        }
-        else
-        {
-            _hints.transform.rotation = Quaternion.Euler(0, 0, 0);
-        }
     }
 
     private bool CheckGrounded()
@@ -241,37 +251,44 @@ public class PlayerController : BaseCharacterController
 
     private bool CheckWallsHit()
     {
-        var mask = LayerMask.GetMask("Platform");
         var position = _collider.bounds.center;
         position += Vector3.up * WALLS_CHECK_OFFSET;
         position += _horizontalMove > 0.0f ? Vector3.right * WALLS_CHECK_OFFSET : Vector3.left * WALLS_CHECK_OFFSET;
         var size = _collider.bounds.size;
         size.y -= WALLS_CHECK_OFFSET;
-        RaycastHit2D wallsHit = Physics2D.BoxCast(position, size, 0f, _horizontalMove > 0 ? Vector2.right : Vector2.left, _obstacleDistance, mask);
+        RaycastHit2D wallsHit = Physics2D.BoxCast(position, size, 0f, _horizontalMove > 0 ? Vector2.right : Vector2.left, _obstacleDistance, _groundLayers);
         Debug.DrawRay(position, _horizontalMove > 0 ? Vector2.right * _obstacleDistance : Vector2.left * _obstacleDistance, Color.blue);
         return wallsHit;
     }
 
     private void ProcessMousePosition()
     {
-        Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 shootingDirection = worldMousePos - transform.position;
-        shootingDirection.Normalize();
+        Vector3 shootingDirection = Vector3.zero;
+#if UNITY_STANDALONE_WIN
+            Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            shootingDirection = worldMousePos - transform.position;
+            shootingDirection.Normalize();
+#endif
+
+#if UNITY_ANDROID
+        if (Input.touches.Length > 0)
+        {
+            shootingDirection = Camera.main.ScreenToWorldPoint(Input.touches[Input.touches.Length - 1].position) - transform.position;
+            shootingDirection.Normalize();
+        }
+#endif
 
         if (shootingDirection.x <= -MAX_AXIS_TO_FLIP && _isFacingRight)
         {
             Flip();
-            //_gunSprite.flipY = true;
-
         }
         if (shootingDirection.x >= MAX_AXIS_TO_FLIP && !_isFacingRight)
         {
             Flip();
-            //_gunSprite.flipY = false;
         }
 
         var look = Mathf.Atan2(shootingDirection.y, shootingDirection.x) * Mathf.Rad2Deg;
-        //_gun.transform.rotation = Quaternion.Euler(0, 0, look);
     }
 
     private void ProcessPowerJump()
@@ -280,7 +297,7 @@ public class PlayerController : BaseCharacterController
         {
             _rigidBody.velocity += Vector2.up * Physics2D.gravity.y * (_fallMiltiplier - 1) * Time.deltaTime;
         }
-        else if (_rigidBody.velocity.y > 0 && !Input.GetButton("Jump"))
+        else if (_rigidBody.velocity.y > 0 && !CrossPlatformInputManager.GetButton("Jump"))
         {
             _rigidBody.velocity += Vector2.up * Physics2D.gravity.y * (_lowJumpMultiplier) * Time.deltaTime;
         }
@@ -303,11 +320,9 @@ public class PlayerController : BaseCharacterController
         {
             _animator.Play("Wizard_Hurt");
             _areControlsAllowed = false;
-            direction.x = (direction.x / Mathf.Abs(direction.x)) * _speed;
-            direction.y = _jumpSpeed;
-            _rigidBody.velocity = direction;
+            _rigidBody.AddForce(direction,ForceMode2D.Impulse);
         }
     }
 
-    #endregion
+#endregion
 }

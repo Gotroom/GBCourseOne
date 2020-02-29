@@ -1,23 +1,37 @@
 ﻿using UnityEngine;
+using TMPro;
 
 
 public class HintController : MonoBehaviour
 {
     #region Fields
 
-    [HideInInspector] public string HintMessage { get { return _hintMessage; } set { _hintMessage = value; } }
-
-    [SerializeField] private TextMesh _hintText;
-
-    private string _hintMessage;
+    [SerializeField] private TextMeshProUGUI _hintText;
 
     #endregion
 
     #region UnityMethods
 
-    private void Update()
+    private void Start()
     {
-        _hintText.text = _hintMessage;
+        DoorController.ShowHint = OnShowHint;
+        DoorController.HideHint = OnHideHint;
+    }
+
+    #endregion
+
+
+    #region Methods
+
+    void OnShowHint(string hint)
+    {
+        _hintText.text = hint;
+        _hintText.enabled = true;
+    }
+
+    void OnHideHint()
+    {
+        _hintText.enabled = false;
     }
 
     #endregion

@@ -82,7 +82,7 @@ GameObject:
   - component: {fileID: 5654697060441429519}
   - component: {fileID: 3321589999907624837}
   - component: {fileID: 2533335379896066975}
-  - component: {fileID: 8977254373447772834}
+  - component: {fileID: 3741806147481538072}
   m_Layer: 14
   m_Name: WizardProjectile
   m_TagString: Untagged
@@ -191,7 +191,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!114 &8977254373447772834
+--- !u!114 &3741806147481538072
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -206,3 +206,7 @@ MonoBehaviour:
   _speed: 10
   _defaultDamage: 1
   _damageMultiplier: 1
+  _startSound: {fileID: 8300000, guid: 67588fa6e71a61a408387b512d7b38b8, type: 3}
+  _animator: {fileID: 0}
+  _isUsedByEnemy: 0
+  _isAnimated: 0

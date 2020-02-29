@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections;
+
 
 public class MainMenuController : MonoBehaviour
 {
     #region Fields
 
-    private const string MAIN_MENU_SCENE_NAME = "MainMenu";
+    private const int MAIN_MENU_SCENE_INDEX = 0;
 
     [SerializeField] private SceneController _sceneController;
     [SerializeField] private bool _inGame;
@@ -14,14 +14,9 @@ public class MainMenuController : MonoBehaviour
 
     #region UnityMethods
 
-    private void Start()
-    {
-        _inGame = _sceneController.GetCurrentScene().name != "MainMenu";
-    }
-
     private void Update()
     {
-        _inGame = _sceneController.GetCurrentScene().name != MAIN_MENU_SCENE_NAME;
+        _inGame = SceneController.SceneIndex != MAIN_MENU_SCENE_INDEX;
     }
 
     #endregion

@@ -9,8 +9,11 @@ public class SoundManager : MonoBehaviour
 
     [SerializeField] private Sound[] _sounds;
     [SerializeField] private AudioSource _sourse;
+    [SerializeField] private Sound _backgroundMusic;
+    [SerializeField] private Sound _bossFightMusic;
 
     #endregion
+
 
     #region UnityMethods
 
@@ -23,14 +26,28 @@ public class SoundManager : MonoBehaviour
             _sounds[i].Source.volume = _sounds[i].Volume;
             _sounds[i].Source.pitch = _sounds[i].Pitch;
         }
+        _backgroundMusic.Source = gameObject.AddComponent<AudioSource>();
+        _backgroundMusic.Source.clip = _backgroundMusic.Clip;
+        _backgroundMusic.Source.volume = _backgroundMusic.Volume;
+        _backgroundMusic.Source.pitch = _backgroundMusic.Pitch;
+        _backgroundMusic.Source.loop = true;
+
+        _bossFightMusic.Source = gameObject.AddComponent<AudioSource>();
+        _bossFightMusic.Source.clip = _bossFightMusic.Clip;
+        _bossFightMusic.Source.volume = _bossFightMusic.Volume;
+        _bossFightMusic.Source.pitch = _bossFightMusic.Pitch;
+        _bossFightMusic.Source.loop = true;
     }
 
     void Start()
     {
         BasePickupController.PlayPickUpSound = OnPlayPickUpSound;
+        TriggerController.TriggeredMusic = OnBossFight;
+        _backgroundMusic.Source.Play();
     }
 
     #endregion
+
 
     #region Methods
 
@@ -46,6 +63,21 @@ public class SoundManager : MonoBehaviour
             Sound sound = Array.Find(_sounds, e => e.Name == name);
             sound.Source.Play();
         }
+    }
+
+    public void PlaySound(AudioClip clip)
+    {
+        if (Array.Exists(_sounds, e => e.Clip == clip))
+        {
+            Sound sound = Array.Find(_sounds, e => e.Clip == clip);
+            sound.Source.Play();
+        }
+    }
+
+    private void OnBossFight()
+    {
+        _backgroundMusic.Source.Stop();
+        _bossFightMusic.Source.Play();
     }
 
     #endregion

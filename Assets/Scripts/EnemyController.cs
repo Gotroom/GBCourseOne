@@ -1,25 +1,32 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class EnemyController : BaseCharacterController
 {
     #region Fields
 
-    private const float VIEWING_ANGLE = 30;
+    protected const float VIEWING_ANGLE = 45;
 
-    [SerializeField] private LayerMask _environmentMask;
-    [SerializeField] private float _fieldOfView = 5f;
-    [SerializeField] private bool _stayingStill = false;
+    [SerializeField] protected LayerMask _environmentMask;
+    [SerializeField] protected GameObject _drop;
 
-    private Vector2 _rightCliff;
-    private Vector2 _leftCliff;
+    [SerializeField] protected float _fieldOfView = 5f;
+    [SerializeField] protected float _attackDistance = 1f;
+    [SerializeField] protected float _attackCooldown = 0.5f;
+    [SerializeField] protected bool _stayingStill = false;
 
-    private float _playerSpottedTimeout = 3.0f;
-    private float _initX;
-    private float _attackCooldown = 1.0f;
-    private float _obstacleDistance = 2.0f;
-    private bool _playerSpotted = false;
-    private bool _inAttackRange = false;
-    private bool _isAttackOnCooldown = false;
+    protected Vector2 _rightCliff;
+    protected Vector2 _leftCliff;
+    protected SoundManager _soundManager;
+
+
+    protected float _playerSpottedTimeout = 3.0f;
+    protected float _initX;
+    protected float _obstacleDistance = 2.0f;
+    protected bool _playerSpotted = false;
+    protected bool _inAttackRange = false;
+    protected bool _isAttackOnCooldown = false;
+    protected bool _isDead = false;
 
     #endregion
 
@@ -28,52 +35,56 @@ public class EnemyController : BaseCharacterController
     protected override void Start()
     {
         base.Start();
+        _soundManager = FindObjectOfType<SoundManager>();
         _health = _maxHealth;
         _leftCliff = new Vector2(-1, -1f);
         _rightCliff = new Vector2(1, -1f);
     }
 
-    void Update()
+    protected virtual void Update()
     {
-        if (CheckForPlayer() && !_playerSpotted)
+        if (!_isDead)
         {
-            _playerSpotted = true;
-            Invoke("PlayerLostTimeout", _playerSpottedTimeout);
-        }
-        if (CheckForObstacle())
-        {
-            if (_playerSpotted)
+            if (CheckForPlayer() && !_playerSpotted)
             {
-                _jumpForce = Vector2.up * _jumpSpeed;
-                _isJumping = true;
+                _playerSpotted = true;
+                Invoke("PlayerLostTimeout", _playerSpottedTimeout);
             }
-            else
-                Flip();
+            if (CheckForObstacle())
+            {
+                if (_playerSpotted)
+                {
+                    _jumpForce = Vector2.up * _jumpSpeed;
+                    _isJumping = true;
+                }
+                else
+                    Flip();
+            }
         }
     }
 
-    void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
-        if (!_inAttackRange)
+        if (!_isDead)
         {
-            transform.position += Vector3.right * _speed * Time.deltaTime;
-            _animator.SetBool("isChasing", _playerSpotted);
-            _animator.SetFloat("Speed", _stayingStill ? 0.0f : 1.0f);
+            if (!_inAttackRange)
+            {
+                var speed = _speed * (_stayingStill ? 0.0f : 1.0f);
+                transform.position += Vector3.right * _speed * Time.deltaTime;
+                _animator.SetBool("IsChasing", _playerSpotted);
+                _animator.SetFloat("Speed", _stayingStill ? 0.0f : 1.0f);
+            }
+            else if (!_isAttackOnCooldown)
+            {
+                AttackPlayer();
+            }
+            if (_isJumping && !_isAirborne)
+            {
+                _rigidBody.AddForce(_jumpForce, ForceMode2D.Impulse);
+                _isJumping = false;
+                _isAirborne = true;
+            }
         }
-        else if (!_isAttackOnCooldown)
-        {
-            PlayerController.PlayerInstance.DealDamage(1, PlayerController.PlayerInstance.transform.position - transform.position);
-            _isAttackOnCooldown = true;
-            Invoke("AttackCooldown", _attackCooldown);
-            _animator.SetBool("isAttacking", true);
-        }
-        if (_isJumping && !_isAirborne)
-        {
-            _rigidBody.AddForce(_jumpForce, ForceMode2D.Impulse);
-            _isJumping = false;
-            _isAirborne = true;
-        }
-
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -89,18 +100,25 @@ public class EnemyController : BaseCharacterController
 
     #region Methods
 
-    private void AttackCooldown()
+    protected virtual void AttackCooldown()
     {
         _isAttackOnCooldown = false;
-        _animator.SetBool("isAttacking", false);
     }
 
-    private void PlayerLostTimeout()
+    protected void PlayerLostTimeout()
     {
         _playerSpotted = false;
     }
 
-    private bool CheckForObstacle()
+    protected virtual void AttackPlayer()
+    {
+        PlayerController.PlayerInstance.DealDamage(1, Vector2.right * (PlayerController.PlayerInstance.transform.position - transform.position));
+        _isAttackOnCooldown = true;
+        Invoke("AttackCooldown", _attackCooldown);
+        _animator.SetTrigger("AttackTrigger");
+    }
+
+    protected bool CheckForObstacle()
     {
         var sidesCast = Physics2D.Raycast(_collider.bounds.center, _isFacingRight ? Vector2.right : Vector2.left,
             _obstacleDistance, _environmentMask);
@@ -113,7 +131,7 @@ public class EnemyController : BaseCharacterController
         return false;
     }
 
-    private bool CheckForPlayer()
+    protected bool CheckForPlayer()
     {
         _inAttackRange = false;
         var direction = PlayerController.PlayerInstance.transform.position - transform.position;
@@ -137,7 +155,7 @@ public class EnemyController : BaseCharacterController
         }
 
         var rayTowardsPlayer = Physics2D.Raycast(_collider.bounds.center, direction, _fieldOfView, _environmentMask);
-        Debug.DrawRay(_collider.bounds.center, direction.normalized * 1.5f, Color.red);
+        Debug.DrawRay(_collider.bounds.center, direction.normalized * _fieldOfView, Color.red);
         if (rayTowardsPlayer)
         {
             if (!rayTowardsPlayer.collider.gameObject.CompareTag("Player"))
@@ -146,10 +164,10 @@ public class EnemyController : BaseCharacterController
             }
             else
             {
-                var attackRay = Physics2D.Raycast(_collider.bounds.center, direction, 1.5f, _environmentMask);
+                var attackRay = Physics2D.Raycast(_collider.bounds.center, direction, _attackDistance, _environmentMask);
                 if (attackRay && attackRay.collider.gameObject.CompareTag("Player"))
                 {
-                    print(attackRay.collider.gameObject.name);
+                   // print(attackRay.collider.gameObject.name);
                     _inAttackRange = true;
                 }
                 else
@@ -182,15 +200,24 @@ public class EnemyController : BaseCharacterController
         }
     }
 
-    private bool CheckForDeath()
+    protected bool CheckForDeath()
     {
         if (_health <= 0)
         {
             PlayerController.PlayerInstance.Kills++;
-            Destroy(gameObject);
-            return true;
+            DropItems();
+            _animator.SetTrigger("DieTrigger");
+            Destroy(gameObject, 1f);
+            _isDead = true;
+            gameObject.tag = "Untagged";
         }
-        return false;
+        return _isDead;
+    }
+
+    protected void DropItems()
+    {
+        if (_drop != null)
+            Instantiate(_drop, transform.position, transform.rotation);
     }
 
     protected override void Flip()

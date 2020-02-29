@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6431c6eed1bbc4e45b8619c42a26ebd2, type: 3}
+  m_Name: Scroll
+  m_EditorClassIdentifier: 
+  Image: {fileID: 21300000, guid: ad372e31a343eb548a23b437d94c3a0c, type: 3}
+  Name: New Item
+  Count: 1
+  Type: 0
+  Controller: {fileID: 3741806147481538072, guid: b92e975f42e77de4ba92c29c5aee1e81,
+    type: 3}

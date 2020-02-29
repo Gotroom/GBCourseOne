@@ -16,6 +16,7 @@ public class UIHealthDisplay : MonoBehaviour
     private void Start()
     {
         PlayerController.HealthChanged = OnHealthChanged;
+        OnHealthChanged(PlayerDataController.instance.PlayerHealth, 5);
     }
 
     #endregion
@@ -26,7 +27,7 @@ public class UIHealthDisplay : MonoBehaviour
     private void OnHealthChanged(int health, int maxHealth)
     {
         float scale = (float)health / (float)maxHealth;
-        print(scale + " " + health + " " + maxHealth);
+        //print(scale + " " + health + " " + maxHealth);
         _healthBar.transform.localScale = new Vector3(scale, 1.0f);
     }
 
