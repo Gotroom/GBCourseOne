@@ -8,11 +8,14 @@ public class LevelGenerator : MonoBehaviour
 
     private const float PLAYER_DISTANCE_TO_SPAWN = 50.0f;
     private const float COLLIDER_OFFSET = -0.125f;
-    private const float PICKUPS_SPAWN_OFFSET = 1.0f;
+    private const float PICKUPS_X_SPAWN_OFFSET = 10.0f;
+    private const float PICKUPS_Y_SPAWN_OFFSET = 2.0f;
+    private const float LOW_AXIS_Y_BORDER = -20.0f;
 
     [SerializeField] private GameObject[] _platformPrefabs;
     [SerializeField] private Transform _startingPoint;
     [SerializeField] private GameObject[] _objectsOnPlatforms;
+    [SerializeField] private GameObject _deathPoint;
 
     [Header("Min and Max Position offsets")]
     [Range(0, 3)]
@@ -60,6 +63,9 @@ public class LevelGenerator : MonoBehaviour
     {
         Transform nextPartTransformer = Spawn(_lastSpawnPoint);
         _lastSpawnPoint = nextPartTransformer.Find("EndPosition").position;
+        var deathPointPosition = _lastSpawnPoint;
+        deathPointPosition.y += LOW_AXIS_Y_BORDER;
+        _deathPoint.transform.position = deathPointPosition;
         SpawnRandomObject(Random.Range(0, _objectsOnPlatforms.Length));
     }
 
@@ -107,8 +113,8 @@ public class LevelGenerator : MonoBehaviour
         if (_objectsOnPlatforms[type] == null)
             return;
         var spawnPoint = _lastSpawnPoint;
-        spawnPoint.x -= PICKUPS_SPAWN_OFFSET;
-        spawnPoint.y += PICKUPS_SPAWN_OFFSET;
+        spawnPoint.x -= PICKUPS_X_SPAWN_OFFSET;
+        spawnPoint.y += PICKUPS_Y_SPAWN_OFFSET;
         Instantiate(_objectsOnPlatforms[type], spawnPoint, Quaternion.identity);
     }
 

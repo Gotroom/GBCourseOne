@@ -42,7 +42,7 @@ public class SoundManager : MonoBehaviour
     void Start()
     {
         BasePickupController.PlayPickUpSound = OnPlayPickUpSound;
-        TriggerController.Triggered += OnBossFight;
+        TriggerController.TriggeredMusic = OnBossFight;
         _backgroundMusic.Source.Play();
     }
 

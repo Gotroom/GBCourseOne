@@ -3,8 +3,8 @@ using System.Collections;
 
 public class ArrowController : ProjectileWeaponController
 {
+    #region UnityMethods
 
-    // Use this for initialization
     protected override void Start()
     {
         base.Start();
@@ -22,10 +22,13 @@ public class ArrowController : ProjectileWeaponController
 
     protected override void Update()
     {
+        return;
     }
 
     protected override void OnTriggerEnter2D(Collider2D collision)
     {
         base.OnTriggerEnter2D(collision);
     }
+
+    #endregion
 }

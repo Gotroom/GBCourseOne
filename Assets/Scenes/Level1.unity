@@ -97,7 +97,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -68704,11 +68704,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: 9529ecc3d479da5499993355e6c2cb4f, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 100004, guid: 9529ecc3d479da5499993355e6c2cb4f, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22300000, guid: 9529ecc3d479da5499993355e6c2cb4f, type: 3}
       propertyPath: m_Camera
@@ -68798,14 +68798,18 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 22400006, guid: 9529ecc3d479da5499993355e6c2cb4f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 2.9
+      objectReference: {fileID: 0}
     - target: {fileID: 1900287429, guid: 9529ecc3d479da5499993355e6c2cb4f, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4859866328696030491, guid: 9529ecc3d479da5499993355e6c2cb4f,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9529ecc3d479da5499993355e6c2cb4f, type: 3}
@@ -93544,42 +93548,6 @@ Tilemap:
       m_ObjectToInstantiate: {fileID: 0}
       m_TileFlags: 2
       m_ColliderType: 2
-  - first: {x: 48, y: -13, z: 0}
-    second:
-      m_TileIndex: 10
-      m_TileSpriteIndex: 2
-      m_TileMatrixIndex: 2
-      m_TileColorIndex: 0
-      m_ObjectToInstantiate: {fileID: 0}
-      m_TileFlags: 2
-      m_ColliderType: 2
-  - first: {x: 49, y: -13, z: 0}
-    second:
-      m_TileIndex: 10
-      m_TileSpriteIndex: 0
-      m_TileMatrixIndex: 2
-      m_TileColorIndex: 0
-      m_ObjectToInstantiate: {fileID: 0}
-      m_TileFlags: 2
-      m_ColliderType: 2
-  - first: {x: 50, y: -13, z: 0}
-    second:
-      m_TileIndex: 10
-      m_TileSpriteIndex: 0
-      m_TileMatrixIndex: 2
-      m_TileColorIndex: 0
-      m_ObjectToInstantiate: {fileID: 0}
-      m_TileFlags: 2
-      m_ColliderType: 2
-  - first: {x: 51, y: -13, z: 0}
-    second:
-      m_TileIndex: 10
-      m_TileSpriteIndex: 1
-      m_TileMatrixIndex: 2
-      m_TileColorIndex: 0
-      m_ObjectToInstantiate: {fileID: 0}
-      m_TileFlags: 2
-      m_ColliderType: 2
   - first: {x: 59, y: -13, z: 0}
     second:
       m_TileIndex: 13
@@ -94178,6 +94146,33 @@ Tilemap:
     second:
       m_TileIndex: 13
       m_TileSpriteIndex: 4
+      m_TileMatrixIndex: 2
+      m_TileColorIndex: 0
+      m_ObjectToInstantiate: {fileID: 0}
+      m_TileFlags: 2
+      m_ColliderType: 2
+  - first: {x: 50, y: -12, z: 0}
+    second:
+      m_TileIndex: 10
+      m_TileSpriteIndex: 2
+      m_TileMatrixIndex: 2
+      m_TileColorIndex: 0
+      m_ObjectToInstantiate: {fileID: 0}
+      m_TileFlags: 2
+      m_ColliderType: 2
+  - first: {x: 51, y: -12, z: 0}
+    second:
+      m_TileIndex: 10
+      m_TileSpriteIndex: 0
+      m_TileMatrixIndex: 2
+      m_TileColorIndex: 0
+      m_ObjectToInstantiate: {fileID: 0}
+      m_TileFlags: 2
+      m_ColliderType: 2
+  - first: {x: 52, y: -12, z: 0}
+    second:
+      m_TileIndex: 10
+      m_TileSpriteIndex: 1
       m_TileMatrixIndex: 2
       m_TileColorIndex: 0
       m_ObjectToInstantiate: {fileID: 0}
@@ -98633,7 +98628,7 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 29
+  - m_RefCount: 28
     m_Data: {fileID: 11400000, guid: 9a7a00e102ec05b4b92c0c29a04eabc3, type: 2}
   - m_RefCount: 0
     m_Data: {fileID: 0}
@@ -98642,7 +98637,7 @@ Tilemap:
   - m_RefCount: 3133
     m_Data: {fileID: 11400000, guid: 59a8a662d15832048b4c145cd278e308, type: 2}
   m_TileSpriteArray:
-  - m_RefCount: 13
+  - m_RefCount: 12
     m_Data: {fileID: 5994963450906594972, guid: 9665cd6a6256a2545ad3b0ddea92fc7f,
       type: 3}
   - m_RefCount: 8
@@ -98732,7 +98727,7 @@ Tilemap:
       e31: NaN
       e32: 0
       e33: 6.588e-42
-  - m_RefCount: 3162
+  - m_RefCount: 3161
     m_Data:
       e00: 1
       e01: 0
@@ -98751,7 +98746,7 @@ Tilemap:
       e32: 0
       e33: 1
   m_TileColorArray:
-  - m_RefCount: 3162
+  - m_RefCount: 3161
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -123686,7 +123681,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c7de63c45c59b48a8a4d09129965fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enteringScene: 0
+  _enteringScene: 2
 --- !u!483693784 &2043066702
 TilemapRenderer:
   m_ObjectHideFlags: 0
@@ -125146,11 +125141,6 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1806077231147213107, guid: 78a9c178a1c53074291683110842d3de,
-        type: 3}
-      propertyPath: _text
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 1806077231408716393, guid: 78a9c178a1c53074291683110842d3de,
         type: 3}
       propertyPath: m_LocalPosition.z
@@ -125164,7 +125154,7 @@ PrefabInstance:
     - target: {fileID: 2298390578306380262, guid: 78a9c178a1c53074291683110842d3de,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2733108746762702555, guid: 78a9c178a1c53074291683110842d3de,
         type: 3}
@@ -125412,12 +125402,12 @@ PrefabInstance:
     - target: {fileID: 2455724487711628855, guid: 86e634e0d34800146822a7a5e9df6757,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.2
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 2455724487711628855, guid: 86e634e0d34800146822a7a5e9df6757,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -10.5
+      value: -10.6
       objectReference: {fileID: 0}
     - target: {fileID: 2455724487711628855, guid: 86e634e0d34800146822a7a5e9df6757,
         type: 3}

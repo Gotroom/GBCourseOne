@@ -7,6 +7,7 @@ public class TriggerController : MonoBehaviour
     #region Fields
 
     public static Action Triggered;
+    public static Action TriggeredMusic;
 
     #endregion
 
@@ -18,6 +19,7 @@ public class TriggerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             Triggered.Invoke();
+            TriggeredMusic.Invoke();
             Destroy(gameObject);
         }
     }

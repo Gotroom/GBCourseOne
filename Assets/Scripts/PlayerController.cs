@@ -10,6 +10,8 @@ public class PlayerController : BaseCharacterController
 
     private const float WALLS_CHECK_OFFSET = 0.3f;
     private const float MAX_AXIS_TO_FLIP = 0.1f;
+    private const float RESPAWN_AXIS_Y_OFFSET = 30.0f;
+    private const float RESPAWN_AXIS_X_OFFSET = 5.0f;
 
     public static PlayerController PlayerInstance => _PlayerInstance;
     public static Action<bool> FlyingModeApplied;
@@ -66,6 +68,7 @@ public class PlayerController : BaseCharacterController
         FlyModeController.ApplyFlyingMode = OnFlyingMode;
         InventoryItem.WieldWeapon = OnWieldWeapon;
         UIController.Paused = OnPaused;
+        RespawnController.FallDown = OnFallDown;
         _secondaryWeapon = null;
     }
 
@@ -211,6 +214,15 @@ public class PlayerController : BaseCharacterController
             return true;
         }
         return false;
+    }
+
+    private void OnFallDown()
+    {
+        var position = transform.position;
+        position.y += RESPAWN_AXIS_Y_OFFSET;
+        position.x -= RESPAWN_AXIS_X_OFFSET;
+        transform.position = position;
+        _rigidBody.velocity = Vector2.zero;
     }
 
     private void FlyingExpired()

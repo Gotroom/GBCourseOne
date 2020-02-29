@@ -26,7 +26,7 @@ public class LevelOneBossController : RangedEnemyController
     protected override void Start()
     {
         base.Start();
-        TriggerController.Triggered += OnTriggeredBossFight;
+        TriggerController.Triggered = OnTriggeredBossFight;
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
